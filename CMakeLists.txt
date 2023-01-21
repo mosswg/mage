@@ -27,9 +27,10 @@ set(TINYUSB_FAMILY_PROJECT_NAME_PREFIX "tinyusb_dev_")
 add_executable(mage_firm)
 
 target_sources(mage_firm PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/main.cpp
-		${CMAKE_CURRENT_LIST_DIR}/mcp23017.cpp
-        ${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c
+	${CMAKE_CURRENT_LIST_DIR}/main.cpp
+	${CMAKE_CURRENT_LIST_DIR}/mcp23017.cpp
+	${CMAKE_CURRENT_LIST_DIR}/mage.cpp
+	${CMAKE_CURRENT_LIST_DIR}/usb_descriptors.c
         )
 
 # Make sure TinyUSB can find tusb_config.h

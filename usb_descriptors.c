@@ -47,7 +47,7 @@ tusb_desc_device_t const desc_device =
     .bLength            = sizeof(tusb_desc_device_t),
     .bDescriptorType    = TUSB_DESC_DEVICE,
     .bcdUSB             = USB_BCD,
-    .bDeviceClass       = 0x00,
+    .bDeviceClass       = 0x03,
     .bDeviceSubClass    = 0x00,
     .bDeviceProtocol    = HID_PROTOCOL_REPORT,
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
@@ -76,10 +76,7 @@ uint8_t const * tud_descriptor_device_cb(void)
 
 uint8_t const desc_hid_report[] =
 {
-  TUD_HID_REPORT_DESC_KEYBOARD( HID_REPORT_ID(REPORT_ID_KEYBOARD         )),
-  TUD_HID_REPORT_DESC_MOUSE   ( HID_REPORT_ID(REPORT_ID_MOUSE            )),
-  TUD_HID_REPORT_DESC_CONSUMER( HID_REPORT_ID(REPORT_ID_CONSUMER_CONTROL )),
-  TUD_HID_REPORT_DESC_GAMEPAD ( HID_REPORT_ID(REPORT_ID_GAMEPAD          ))
+  TUD_HID_REPORT_DESC_KEYBOARD( HID_REPORT_ID(REPORT_ID_KEYBOARD         ))
 };
 
 // Invoked when received GET HID REPORT DESCRIPTOR
@@ -127,7 +124,7 @@ tusb_desc_device_qualifier_t const desc_device_qualifier =
   .bDescriptorType    = TUSB_DESC_DEVICE_QUALIFIER,
   .bcdUSB             = USB_BCD,
 
-  .bDeviceClass       = 0x00,
+  .bDeviceClass       = 0x03,
   .bDeviceSubClass    = 0x00,
   .bDeviceProtocol    = HID_PROTOCOL_REPORT,
 

@@ -1,11 +1,13 @@
+#pragma once
+
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 
-namespace mcp23017 {
-	// I2C address
-	static const uint8_t MCP_ADDR = 0x20;
+class mcp23017 {
+	public:
 
+	/// Constants
 	// Registers
 	static const uint8_t REG_DEVID = 0x00;
 	static const uint8_t REG_POWER_CTL = 0x2D;
@@ -20,22 +22,59 @@ namespace mcp23017 {
 	static const uint8_t GPIOA = 0x12;
 	static const uint8_t GPIOB = 0x13;
 
-	static const uint8_t INPUT = 0x0;
+	static const uint8_t IODIR_INPUT = 0x0;
 
-	void initialize();
+
+	// i2c values
+	static const uint SDA_PIN = 24;
+	static const uint SCL_PIN = 25;
+	static constexpr i2c_inst_t* I2C = i2c0;
+
+	/// Member values
+	uint8_t address;
+	bool exists = true;
+
+	mcp23017(const uint8_t address) : address(address) {
+
+		// Buffer to store raw reads
+		uint8_t buffer[2];
+
+		//Initialize I2C port at 400 kHz
+		i2c_init(I2C, 400 * 1000);
+
+		// Initialize I2C pins
+		gpio_set_function(SDA_PIN, GPIO_FUNC_I2C);
+		gpio_set_function(SCL_PIN, GPIO_FUNC_I2C);
+
+		// Check if the chip exists
+		uint8_t iodira = 0;
+		reg_read(IODIRA, &iodira, 1);
+		if (iodira != 0b11111111) {
+			//exists = true;
+			//return;
+		}
+
+		// Initalize chip
+		buffer[0] = IODIRA;
+		buffer[1] = IODIR_INPUT;
+		reg_write(buffer,
+				2);
+
+
+		buffer[0] = IODIRB;
+		buffer[1] = IODIR_INPUT;
+		reg_write(buffer,
+				2);
+	}
 
 	// Write the  bytes of buf to the specified register
-	int reg_write (  i2c_inst_t *i2c,
-			const uint addr,
-			uint8_t *buf,
+	int reg_write (uint8_t *buf,
 			const uint8_t nbytes);
 
 
 	// Read byte(s) from specified register. If nbytes > 1, read from consecutive
 	// registers.
-	int reg_read(  i2c_inst_t *i2c,
-			const uint addr,
-			const uint8_t reg,
+	int reg_read(const uint8_t reg,
 			uint8_t *buf,
 			const uint8_t nbytes);
 
@@ -44,4 +83,4 @@ namespace mcp23017 {
 	uint8_t get_bank_a();
 	// get the values in bank b
 	uint8_t get_bank_b();
-}
+};
