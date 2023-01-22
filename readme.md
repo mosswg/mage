@@ -3,7 +3,7 @@
 # Pictures (with kailh choc robins and MBK Legend Keycaps from [MKUltra Corporation](mkultra.click)
 ![Mage keyboard with one side angled inward](https://cdn.mossx.net/mage_keyboard/mage_stacked_medium.png)
 ![Mage keyboard halfs side by side](https://cdn.mossx.net/mage_keyboard/mage_side_by_side_medium.png)
-![Mage keyboard plugged into an off screen computer](https://cdn.mossx.net/mage_keyboard/mage_plugged_in_medium.jpg)
+![Mage keyboard plugged into an off screen computer](https://cdn.mossx.net/mage_keyboard/mage_plugged_in_medium.png)
 
 ## Design principles
  - Grid keyboards are annoying to design and build
