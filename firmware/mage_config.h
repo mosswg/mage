@@ -17,9 +17,10 @@ namespace mage_config {
 	inline const uint8_t KEY_RAISE = 0xa5;
 	inline const uint8_t KEY_LOWER = 0xa6;
 
-	inline uint8_t config_memory[CONFIG_SIZE];
+	inline uint8_t config_memory[FLASH_PAGE_SIZE];
 
 
+	/**
 	inline const uint8_t default_config[CONFIG_SIZE] = {
 		HID_KEY_ARROW_UP,    HID_KEY_GRAVE,        HID_KEY_F1,        HID_KEY_F2,    HID_KEY_F3,     HID_KEY_F4,    HID_KEY_F5,    HID_KEY_F6,        HID_KEY_F7,         HID_KEY_F8,       HID_KEY_F9,         HID_KEY_F10,         HID_KEY_BRACKET_LEFT,  HID_KEY_ESCAPE,
 		HID_KEY_ARROW_LEFT,  HID_KEY_SPACE,        HID_KEY_1,         HID_KEY_2,     HID_KEY_3,      HID_KEY_4,     HID_KEY_5,     HID_KEY_6,         HID_KEY_7,          HID_KEY_8,        HID_KEY_9,          HID_KEY_0,           HID_KEY_BRACKET_RIGHT, HID_KEY_DELETE,
@@ -39,6 +40,7 @@ namespace mage_config {
 		mage_config::KEY_RAISE, HID_KEY_GUI_LEFT, HID_KEY_CONTROL_LEFT, HID_KEY_SPACE,
 		mage_config::KEY_LOWER, HID_KEY_BACKSPACE, HID_KEY_CONTROL_RIGHT, HID_KEY_ENTER
 	};
+	*/
 
 
 	/**
@@ -71,22 +73,15 @@ namespace mage_config {
 
 	uint8_t const key_to_ascii_table[128][2] =  { HID_KEYCODE_TO_ASCII };
 
-	inline void get_from_serial(uint8_t* serial_config, uint32_t size) {
-		tud_cdc_write_str("WRITING CONF\r\n");
-		tud_cdc_write_str(std::to_string(serial_config[60]).c_str());
-		tud_cdc_write_str(std::to_string(serial_config[61]).c_str());
-		tud_cdc_write_str(std::to_string(serial_config[62]).c_str());
-		tud_cdc_write_str(std::to_string(serial_config[63]).c_str());
-		for (int i = 0; i < CONFIG_SIZE; i++) {
-			if (default_config[i] != serial_config[i]) {
-				tud_cdc_write_str(("Mismatch at " + std::to_string(i) + "\r\n").c_str());
-			}
+	inline void get_from_serial(uint8_t* serial_config, uint32_t size, uint8_t state) {
+		tud_cdc_write_str(("WRITING CONF FOR STATE: " + std::to_string(state) + "\r\n").c_str());
+
+
+		for (int i = 0; i < size; i++) {
+			config_memory[i + (state * NUMBER_OF_KEYS_IN_PLANK)] = serial_config[i];
 		}
 
-		write_config_to_flash(serial_config);
-		for (int i = 0; i < CONFIG_SIZE; i++) {
-			config_memory[i] = serial_config[i];
-		}
+		write_config_to_flash(config_memory);
 	}
 
 }

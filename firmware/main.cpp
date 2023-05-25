@@ -121,13 +121,9 @@ void cdc_task(void) {
 			uint32_t count = tud_cdc_read(buf, 2 * (FLASH_PAGE_SIZE + 4));
 
 			if (count >= 4) {
-				if (buf[0] == 'C' && buf[1] == 'O' && buf[2] == 'N' && buf[3] == 'F') {
+				if (buf[0] == 'C' && buf[1] == 'F' && buf[2] == 'G') {
 					tud_cdc_write_str("CONF PARSING\r\n");
-					tud_cdc_write_str(std::to_string(buf[4]).c_str());
-					tud_cdc_write_str(std::to_string(buf[5]).c_str());
-					tud_cdc_write_str(std::to_string(buf[6]).c_str());
-					tud_cdc_write_str(std::to_string(buf[7]).c_str());
-					mage_config::get_from_serial(buf + 4, count - 4);
+					mage_config::get_from_serial(buf + 4, count - 4, buf[3]);
 				}
 			}
 			tud_cdc_write_flush();
