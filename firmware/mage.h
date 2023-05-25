@@ -5,9 +5,10 @@
 
 class mage {
 	public:
-	const uint8_t STATE_LOW = 0;
+	const uint8_t STATE_HIGH = 0;
 	const uint8_t STATE_NORMAL = 1;
-	const uint8_t STATE_HIGH = 2;
+	const uint8_t STATE_LOW = 2;
+	const uint8_t STATE_CONTROL = 3;
 
 	mcp23017 io1;
 	mcp23017 io2;
@@ -36,8 +37,8 @@ class mage {
 	uint8_t key_to_modifier(uint8_t key);
 
 
-	uint8_t get_plank_key_from_normal_state(uint8_t column, uint8_t row);
-	uint8_t get_control_group_key_from_normal_state(uint8_t group, uint8_t index);
+	uint8_t get_plank_key(uint8_t column, uint8_t row, uint8_t state);
+	uint8_t get_control_group_key(uint8_t group, uint8_t index);
 
 
 	void append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_size, uint8_t& mods);

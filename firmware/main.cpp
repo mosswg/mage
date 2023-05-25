@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+#include <string>
 
 #include <tusb.h>
 #include <bsp/board.h>
@@ -72,6 +73,8 @@ int main(void)
 	uint8_t num_pressed_keys;
 	bool prev_was_empty = true;
 
+	mage_config::read_config_from_flash();
+
 	mage keyboard;
 
 	while (1) {
@@ -112,17 +115,21 @@ void cdc_task(void) {
 	if ( tud_cdc_connected() ) {
 		// connected and there are data available
 		if ( tud_cdc_available() ) {
-			uint8_t buf[64];
+			uint8_t buf[2 * (FLASH_PAGE_SIZE + 4)];
 
 			// read and echo back
-			uint32_t count = tud_cdc_read(buf, sizeof(buf));
+			uint32_t count = tud_cdc_read(buf, 2 * (FLASH_PAGE_SIZE + 4));
 
-			for(uint32_t i=0; i<count; i++) {
-					tud_cdc_write_char(buf[i]);
-
-					if ( buf[i] == '\r' ) tud_cdc_write_char('\n');
+			if (count >= 4) {
+				if (buf[0] == 'C' && buf[1] == 'O' && buf[2] == 'N' && buf[3] == 'F') {
+					tud_cdc_write_str("CONF PARSING\r\n");
+					tud_cdc_write_str(std::to_string(buf[4]).c_str());
+					tud_cdc_write_str(std::to_string(buf[5]).c_str());
+					tud_cdc_write_str(std::to_string(buf[6]).c_str());
+					tud_cdc_write_str(std::to_string(buf[7]).c_str());
+					mage_config::get_from_serial(buf + 4, count - 4);
 				}
-
+			}
 			tud_cdc_write_flush();
 		}
 	}
@@ -136,7 +143,7 @@ void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts) {
 	if ( dtr && rts )
 		{
 			// print initial message when connected
-			tud_cdc_write_str("\r\nTinyUSB CDC MSC device example\r\n");
+			//tud_cdc_write_str("\r\nTinyUSB CDC MSC device example\r\n");
 		}
 }
 

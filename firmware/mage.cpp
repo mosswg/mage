@@ -582,7 +582,7 @@ int mage::append_plank_key(uint8_t* key_buffer, int buffer_index, uint8_t& mods,
 		return 0;
 	}
 
-	uint8_t key = mage_config::plank_keys[column][(state * 4) + row];
+	uint8_t key = get_plank_key(column, row, state);
 
 	if (key == mage_config::KEY_RAISE || key == mage_config::KEY_LOWER) {
 		return 0;
@@ -613,7 +613,8 @@ int mage::append_control_group_key(uint8_t* key_buffer, int buffer_index, uint8_
 		return 0;
 	}
 
-	uint8_t key = mage_config::control_group_keys[group][index];
+
+	uint8_t key = get_control_group_key(group, index);
 
 	if (key == mage_config::KEY_RAISE || key == mage_config::KEY_LOWER) {
 		return 0;
@@ -631,12 +632,12 @@ int mage::append_control_group_key(uint8_t* key_buffer, int buffer_index, uint8_
 }
 
 
-uint8_t mage::get_plank_key_from_normal_state(uint8_t column, uint8_t row) {
-	return mage_config::plank_keys[column][(STATE_NORMAL * 4) + row];
+uint8_t mage::get_plank_key(uint8_t column, uint8_t row, uint8_t state) {
+	return mage_config::config_memory[mage_config::NUMBER_OF_KEYS_IN_PLANK * state + (row * mage_config::NUMBER_OF_KEYS_IN_ROW) + column];
 }
 
-uint8_t mage::get_control_group_key_from_normal_state(uint8_t group, uint8_t index) {
-	return mage_config::control_group_keys[group][index];
+uint8_t mage::get_control_group_key(uint8_t group, uint8_t index) {
+	return mage_config::config_memory[mage_config::NUMBER_OF_KEYS_IN_PLANK * STATE_CONTROL + (mage_config::NUMBER_OF_KEYS_IN_CONTROL_GROUP * group) + index];
 }
 
 
@@ -657,10 +658,10 @@ void mage::append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_s
 
 		uint8_t key = 0;
 		if (column < 0) {
-			key = this->get_control_group_key_from_normal_state(~column, row);
+			key = this->get_control_group_key(~column, row);
 		}
 		else {
-			key = this->get_plank_key_from_normal_state(column, row);
+			key = this->get_plank_key(column, row, STATE_NORMAL);
 		}
 
 		if (key == mage_config::KEY_RAISE) {
@@ -698,16 +699,4 @@ void mage::append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_s
 			buffer_index += append_plank_key(buffer, buffer_index, mods, column, row);
 		}
 	}
-}
-
-
-bool mage_config::write_flash_test(uint8_t set_value) {
-	uint32_t ints = save_and_disable_interrupts();
-	flash_range_erase(CONFIG_FLASH_OFFSET, FLASH_SECTOR_SIZE);
-	restore_interrupts (ints);
-
-	uint8_t data[FLASH_PAGE_SIZE];
-	data[0] = set_value;
-
-	flash_range_program(CONFIG_FLASH_OFFSET, data, FLASH_PAGE_SIZE);
 }
