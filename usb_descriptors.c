@@ -95,10 +95,15 @@ uint8_t const * tud_hid_descriptor_report_cb(uint8_t instance)
 enum
 {
   ITF_NUM_HID,
+  ITF_0_NUM_CDC,
   ITF_NUM_TOTAL
 };
 
-#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN)
+#define EPNUM_0_CDC_NOTIF   0x82
+#define EPNUM_0_CDC_OUT     0x02
+#define EPNUM_0_CDC_IN      0x83
+
+#define  CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_HID_DESC_LEN + TUD_CDC_DESC_LEN)
 
 #define EPNUM_HID   0x81
 
@@ -108,7 +113,10 @@ uint8_t const desc_configuration[] =
   TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 100),
 
   // Interface number, string index, protocol, report descriptor len, EP In address, size & polling interval
-  TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 5)
+  TUD_HID_DESCRIPTOR(ITF_NUM_HID, 0, HID_ITF_PROTOCOL_NONE, sizeof(desc_hid_report), EPNUM_HID, CFG_TUD_HID_EP_BUFSIZE, 5),
+
+  // Interface number, string index, EP notification address and size, EP data address (out, in) and size.
+  TUD_CDC_DESCRIPTOR(ITF_0_NUM_CDC, 0, EPNUM_0_CDC_NOTIF, 8, EPNUM_0_CDC_OUT, EPNUM_0_CDC_IN, TUD_OPT_HIGH_SPEED ? 512 : 64),
 };
 
 #if TUD_OPT_HIGH_SPEED
@@ -178,8 +186,8 @@ uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
 char const* string_desc_arr [] =
 {
   (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
-  "mossx",                     // 1: Manufacturer
-  "mage keeb",              // 2: Product
+  "mosswg",                     // 1: Manufacturer
+  "MageV2",              // 2: Product
   "cd2a",                      // 3: Serials, should use chip ID
 };
 

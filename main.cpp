@@ -52,52 +52,101 @@ enum  {
 
 
 uint8_t const ascii_to_key_table[128][2] =  { HID_ASCII_TO_KEYCODE };
+uint8_t const key_to_ascii_table[128][2] =  { HID_KEYCODE_TO_ASCII };
 
 static uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
 
 void write_letter(char, uint8_t);
 void write_string(char*, uint8_t);
 void hid_task(uint8_t*, uint8_t);
+void cdc_task(void);
 
 /*------------- MAIN -------------*/
 int main(void)
 {
-  board_init();
-  mage keyboard;
-  tud_init(0);
+	board_init();
+	tud_init(0);
 
-  uint8_t pressed_keys[7];
-  uint8_t mods;
-  uint8_t num_pressed_keys;
-  bool prev_was_empty = true;
+	uint8_t pressed_keys[7];
+	uint8_t mods;
+	uint8_t num_pressed_keys;
+	bool prev_was_empty = true;
 
-  while (1)
-  {
-    tud_task(); // tinyusb device task
+	mage keyboard;
 
-	num_pressed_keys = 0;
-	for(int i = 0; i < 6; i++) {
-		pressed_keys[i] = 0;
-	}
-	mods = 0;
+	while (1) {
+		tud_task(); // tinyusb device task
 
-	num_pressed_keys = keyboard.get_pressed_keys(pressed_keys, 6, mods);
+		num_pressed_keys = 0;
+		for(int i = 0; i < 6; i++) {
+			pressed_keys[i] = 0;
+		}
+		mods = 0;
 
-	// anti-spam
-	if (!prev_was_empty || num_pressed_keys != 0) {
+		num_pressed_keys = keyboard.get_pressed_keys(pressed_keys, 6, mods);
+
+		// anti-spam
+		if (!prev_was_empty || num_pressed_keys != 0) {
 			hid_task(pressed_keys, mods);
 			if (num_pressed_keys == 0) {
 				prev_was_empty = true;
 			} else {
 				prev_was_empty = false;
 			}
+		}
+
+		cdc_task();
+
+		sleep_ms(5);
 	}
 
-	sleep_ms(5);
-  }
-
-  return 0;
+	return 0;
 }
+
+
+
+//--------------------------------------------------------------------+
+// USB CDC
+//--------------------------------------------------------------------+
+void cdc_task(void) {
+	if ( tud_cdc_connected() ) {
+		// connected and there are data available
+		if ( tud_cdc_available() ) {
+			uint8_t buf[64];
+
+			// read and echo back
+			uint32_t count = tud_cdc_read(buf, sizeof(buf));
+
+			for(uint32_t i=0; i<count; i++) {
+					tud_cdc_write_char(buf[i]);
+
+					if ( buf[i] == '\r' ) tud_cdc_write_char('\n');
+				}
+
+			tud_cdc_write_flush();
+		}
+	}
+}
+
+// Invoked when cdc when line state changed e.g connected/disconnected
+void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts) {
+	(void) itf;
+
+	// connected
+	if ( dtr && rts )
+		{
+			// print initial message when connected
+			tud_cdc_write_str("\r\nTinyUSB CDC MSC device example\r\n");
+		}
+}
+
+// Invoked when CDC interface received data from host
+void tud_cdc_rx_cb(uint8_t itf) {
+	(void) itf;
+}
+
+
+
 
 //--------------------------------------------------------------------+
 // USB HID

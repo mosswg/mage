@@ -26,9 +26,9 @@ class mcp23017 {
 
 
 	// i2c values
-	static const uint SDA_PIN = 24;
-	static const uint SCL_PIN = 25;
-	static constexpr i2c_inst_t* I2C = i2c0;
+	static const uint SDA_PIN = 6;
+	static const uint SCL_PIN = 7;
+	static constexpr i2c_inst_t* I2C = i2c1;
 
 	/// Member values
 	uint8_t address;

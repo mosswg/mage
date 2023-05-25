@@ -699,3 +699,15 @@ void mage::append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_s
 		}
 	}
 }
+
+
+bool mage_config::write_flash_test(uint8_t set_value) {
+	uint32_t ints = save_and_disable_interrupts();
+	flash_range_erase(CONFIG_FLASH_OFFSET, FLASH_SECTOR_SIZE);
+	restore_interrupts (ints);
+
+	uint8_t data[FLASH_PAGE_SIZE];
+	data[0] = set_value;
+
+	flash_range_program(CONFIG_FLASH_OFFSET, data, FLASH_PAGE_SIZE);
+}
