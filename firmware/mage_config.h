@@ -91,7 +91,7 @@ namespace mage_config {
 	uint8_t const key_to_ascii_table[128][2] =  { HID_KEYCODE_TO_ASCII };
 
 	inline void get_from_serial(uint8_t* serial_config, uint32_t size, uint8_t state) {
-		if (state > 3) {
+		if (state > mage_const::MAX_STATE || state < mage_const::MIN_STATE) {
 			tud_cdc_write_str("ERROR: State ");
 			tud_cdc_write_str(std::to_string(state).c_str());
 			tud_cdc_write_str(" Out of bounds\r\n");
@@ -117,5 +117,22 @@ namespace mage_config {
 		uint8_t key = serial_data[3];
 
 		set_config_memory(state, column, row, key);
+	}
+
+	inline void fetch_config(uint8_t state) {
+		if (state > mage_const::MAX_STATE || state < mage_const::MIN_STATE) {
+			tud_cdc_write_str("ERROR: State ");
+			tud_cdc_write_str(std::to_string(state).c_str());
+			tud_cdc_write_str(" Out of bounds\r\n");
+			return;
+		}
+
+		if (state == mage_const::STATE_CONTROL) {
+			tud_cdc_write(config_memory + (mage_const::NUMBER_OF_KEYS_IN_PLANK * state), mage_const::NUMBER_OF_KEYS_IN_CONTROL_GROUP);
+		}
+		else {
+			tud_cdc_write(config_memory + (mage_const::NUMBER_OF_KEYS_IN_PLANK * state), mage_const::NUMBER_OF_KEYS_IN_PLANK);
+		}
+		tud_cdc_write_flush();
 	}
 }

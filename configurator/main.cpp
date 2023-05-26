@@ -45,6 +45,11 @@ const uint8_t config_control[CONFIG_CONTROL_SIZE] = {
 
 const uint8_t save_seq[4] = {'S', 'A', 'V', 'E'};
 
+const uint8_t fetch_high_seq[4] = {'F', 'C', 'H', mage_const::STATE_HIGH};
+const uint8_t fetch_normal_seq[4] = {'F', 'C', 'H', mage_const::STATE_NORMAL};
+const uint8_t fetch_low_seq[4] = {'F', 'C', 'H', mage_const::STATE_LOW};
+const uint8_t fetch_control_seq[4] = {'F', 'C', 'H', mage_const::STATE_CONTROL};
+
 void save_config(int SERIAL_USB) {
 	write( SERIAL_USB, save_seq, 4);
 }
@@ -65,6 +70,31 @@ void write_change(int SERIAL_USB, uint8_t state, uint8_t column, uint8_t row, ui
 		state, column, row, key,
 	};
 	write(SERIAL_USB, data, 8);
+}
+
+void fetch_config(int SERIAL_USB, uint8_t* out) {
+	write(SERIAL_USB, fetch_high_seq, 4);
+	read(SERIAL_USB, out, mage_const::NUMBER_OF_KEYS_IN_PLANK);
+
+	write(SERIAL_USB, fetch_normal_seq, 4);
+	read(SERIAL_USB, out + mage_const::NUMBER_OF_KEYS_IN_PLANK, mage_const::NUMBER_OF_KEYS_IN_PLANK);
+
+	write(SERIAL_USB, fetch_low_seq, 4);
+	read(SERIAL_USB, out + (mage_const::NUMBER_OF_KEYS_IN_PLANK * 2), mage_const::NUMBER_OF_KEYS_IN_PLANK);
+
+	write(SERIAL_USB, fetch_control_seq, 4);
+	read(SERIAL_USB, out + (mage_const::NUMBER_OF_KEYS_IN_PLANK * 3), mage_const::NUMBER_OF_KEYS_IN_CONTROL_GROUP * 2);
+
+	for (int i = 0; i < mage_const::CONFIG_SIZE; i++) {
+		if (!(i % mage_const::NUMBER_OF_KEYS_IN_ROW)) {
+			std::cout << "\n";
+		}
+		if (!(i % mage_const::NUMBER_OF_KEYS_IN_PLANK)) {
+			std::cout << "\n";
+		}
+		std::cout << std::hex << (int)out[i] << "\t";
+	}
+	std::cout << std::dec << "\n";
 }
 
 void init_tty(int, struct termios&);
@@ -100,6 +130,11 @@ int main(int argc, char** argv) {
 	}
 	else if (stris(argv[1], "save")) {
 		save_config(SERIAL_USB);
+	}
+	else if (stris(argv[1], "fetch")) {
+		uint8_t config[mage_const::CONFIG_SIZE];
+		memset(config, 0, mage_const::CONFIG_SIZE);
+		fetch_config(SERIAL_USB, config);
 	}
 
 
@@ -164,6 +199,9 @@ void print_usage() {
 	out << "\t\t\tArguments: NONE\n\n";
 	out << "\t\tsave:\n";
 	out << "\t\t\tSave the current configuration to flash\n";
+	out << "\t\t\tArguments: NONE\n\n";
+	out << "\t\tfetch:\n";
+	out << "\t\t\tGet the current configuration from the keyboard\n";
 	out << "\t\t\tArguments: NONE\n\n";
 }
 

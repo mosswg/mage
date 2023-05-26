@@ -16,6 +16,9 @@ namespace mage_const {
 	const int NUMBER_OF_IO_EXPANDERS = 4;
 	const int CONFIG_SIZE = (NUMBER_OF_KEYS_IN_PLANK * 3) + (NUMBER_OF_KEYS_IN_CONTROL_GROUP * 2);
 
+	const int MAX_STATE = STATE_CONTROL;
+	const int MIN_STATE = STATE_HIGH;
+
 	const uint8_t KEY_RAISE = 0xa5;
 	const uint8_t KEY_LOWER = 0xa6;
 };
