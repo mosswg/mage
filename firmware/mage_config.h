@@ -85,6 +85,10 @@ namespace mage_config {
 	}
 
 	inline void set_config_memory(uint8_t state, uint8_t column, uint8_t row, uint8_t key) {
+		if (state < mage_const::MIN_STATE || state > mage_const::MAX_STATE || column < 0 || column >= mage_const::NUMBER_OF_KEYS_IN_ROW || row < 0 || row >= mage_const::NUMBER_OF_KEYS_IN_COLUMN) {
+			tud_cdc_write_str("ERROR: Change out of bounds\r\n");
+			return;
+		}
 		mage_config::config_memory[mage_const::NUMBER_OF_KEYS_IN_PLANK * state + (row * mage_const::NUMBER_OF_KEYS_IN_ROW) + column] = key;
 	}
 

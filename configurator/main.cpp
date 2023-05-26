@@ -89,6 +89,36 @@ void fetch_config(int SERIAL_USB, uint8_t* out) {
 	std::cout << std::dec << "\n";
 }
 
+uint8_t name_to_keycode(std::string name) {
+	for (char& c : name) {
+		c = toupper(c);
+	}
+	// Should probably change this to a hashmap
+	for (int i = 0; i < MAX_KEYCODE; i++) {
+		if (keycode_names[i] == name) {
+			return i;
+		}
+	}
+	std::cerr << "ERROR: Unknown key " << name << "\n";
+	return -1;
+}
+
+uint8_t string_to_state(std::string str) {
+	for (char& c : str) {
+		c = toupper(c);
+	}
+
+	for (int i = 0; i < mage_const::MAX_STATE; i++) {
+		if (str == state_names[i] || str == std::to_string(i)) {
+			return i;
+		}
+	}
+
+	std::cerr << "ERROR: Unknown state " << str << "\n";
+
+	return -1;
+}
+
 void init_tty(int, struct termios&);
 void print_usage();
 bool stris(char*, std::string);
@@ -111,11 +141,27 @@ int main(int argc, char** argv) {
 	}
 
 	if (stris(argv[1], "change")) {
-		if (argc < 5) {
+		if (argc < 6) {
 			std::cout << "Too few arguments for change\n";
 			print_usage();
 		}
-		write_change(SERIAL_USB, 1, 2, 2, HID_KEY_F);
+		uint8_t state = string_to_state(argv[2]);
+		uint8_t column = std::stoi(argv[3]);
+		uint8_t row = std::stoi(argv[4]);
+		uint8_t key = name_to_keycode(argv[5]);
+		if (state == -1 || key == -1) {
+			return 1;
+		}
+		if (column < 0 || column >= mage_const::NUMBER_OF_KEYS_IN_ROW) {
+			std::cerr << "ERROR: Column out of bounds\n";
+			return 1;
+		}
+		if (row < 0 || row >= mage_const::NUMBER_OF_KEYS_IN_COLUMN) {
+			std::cerr << "ERROR: Row out of bounds\n";
+			return 1;
+		}
+
+		write_change(SERIAL_USB, state, column, row, key);
 	}
 	else if (stris(argv[1], "default")) {
 		write_default_config(SERIAL_USB);
