@@ -67,7 +67,11 @@ void write_change(int SERIAL_USB, uint8_t state, uint8_t column, uint8_t row, ui
 	write(SERIAL_USB, data, 8);
 }
 
-int main() {
+void init_tty(int, struct termios&);
+void print_usage();
+bool stris(char*, std::string);
+
+int main(int argc, char** argv) {
 	int SERIAL_USB = open( "/dev/ttyACM0", O_RDWR| O_NOCTTY );
 
 	if (SERIAL_USB < 0) {
@@ -75,8 +79,41 @@ int main() {
 		exit(1);
 	}
 
-
 	struct termios tty;
+
+	init_tty(SERIAL_USB, tty);
+
+	if (argc < 2) {
+		print_usage();
+		return 1;
+	}
+
+	if (stris(argv[1], "change")) {
+		if (argc < 5) {
+			std::cout << "Too few arguments for change\n";
+			print_usage();
+		}
+		write_change(SERIAL_USB, 1, 2, 2, HID_KEY_F);
+	}
+	else if (stris(argv[1], "default")) {
+		write_default_config(SERIAL_USB);
+	}
+	else if (stris(argv[1], "save")) {
+		save_config(SERIAL_USB);
+	}
+
+
+	return 0;
+}
+
+
+
+
+
+
+// Helper functions
+
+void init_tty(int SERIAL_USB, struct termios& tty) {
 	struct termios tty_old;
 	memset(&tty, 0, sizeof tty);
 
@@ -113,11 +150,29 @@ int main() {
 		std::cout << "Error " << errno << " from tcsetattr" << std::endl;
 		exit(3);
 	}
+}
 
-	write_default_config(SERIAL_USB);
+void print_usage() {
+	auto& out = std::cout;
+	out << "Usage: configurator [command] <arguments>\n";
+	out << "\tCommands:\n";
+	out << "\t\tchange:\n";
+	out << "\t\t\tChange a key in the configuration\n";
+	out << "\t\t\tArguments: State Column Row Key\n\n";
+	out << "\t\tdefault:\n";
+	out << "\t\t\tUpload the default configuration\n";
+	out << "\t\t\tArguments: NONE\n\n";
+	out << "\t\tsave:\n";
+	out << "\t\t\tSave the current configuration to flash\n";
+	out << "\t\t\tArguments: NONE\n\n";
+}
 
-	write_change(SERIAL_USB, 1, 2, 2, HID_KEY_F);
 
-
-	return 0;
+bool stris(char* cp, std::string str) {
+	for (int i = 0; i < str.length() && cp[i]; i++) {
+		if (cp[i] != str[i]) {
+			return false;
+		}
+	}
+	return true;
 }
