@@ -61,23 +61,27 @@ namespace mage_config {
 	}
 
 
+
+	inline bool memory_and_flash_configs_are_equal() {
+		for (int i = 0; i < FLASH_PAGE_SIZE; ++i) {
+			if (config_memory[i] != config_flash[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/**
 		@param config - the config to be written into the flash
 		@return - true if success, false if failure.
 	*/
-	inline bool write_config_to_flash(uint8_t* config) {
+	inline void write_config_to_flash(uint8_t* config) {
 		uint32_t ints = save_and_disable_interrupts();
 		flash_range_erase(CONFIG_FLASH_OFFSET, FLASH_SECTOR_SIZE);
 		restore_interrupts (ints);
 
 		flash_range_program(CONFIG_FLASH_OFFSET, config, FLASH_PAGE_SIZE);
 
-		for (int i = 0; i < FLASH_PAGE_SIZE; ++i) {
-			if (config[i] != config_flash[i]) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 	/**
@@ -87,6 +91,10 @@ namespace mage_config {
 		for (int i = 0; i < CONFIG_SIZE; i++) {
 			config_memory[i] = config_flash[i];
 		}
+	}
+
+	inline void set_config_memory(uint8_t state, uint8_t column, uint8_t row, uint8_t key) {
+		mage_config::config_memory[mage_config::NUMBER_OF_KEYS_IN_PLANK * state + (row * mage_config::NUMBER_OF_KEYS_IN_ROW) + column] = key;
 	}
 
 	uint8_t const key_to_ascii_table[128][2] =  { HID_KEYCODE_TO_ASCII };
@@ -105,7 +113,18 @@ namespace mage_config {
 			config_memory[i + (state * NUMBER_OF_KEYS_IN_PLANK)] = serial_config[i];
 		}
 
+	}
+
+	inline void save_config() {
 		write_config_to_flash(config_memory);
 	}
 
+	inline void change_from_serial(uint8_t* serial_data) {
+		uint8_t state = serial_data[0];
+		uint8_t column = serial_data[1];
+		uint8_t row = serial_data[2];
+		uint8_t key = serial_data[3];
+
+		set_config_memory(state, column, row, key);
+	}
 }

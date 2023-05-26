@@ -108,6 +108,14 @@ int main(void)
 
 
 
+bool buffer_starts_with(uint8_t* buffer, std::string str) {
+	for (int i = 0; i < str.size(); i++) {
+		if (buffer[i] != str[i]) {
+			return false;
+		}
+	}
+	return true;
+}
 //--------------------------------------------------------------------+
 // USB CDC
 //--------------------------------------------------------------------+
@@ -121,9 +129,22 @@ void cdc_task(void) {
 			uint32_t count = tud_cdc_read(buf, 2 * (FLASH_PAGE_SIZE + 4));
 
 			if (count >= 4) {
-				if (buf[0] == 'C' && buf[1] == 'F' && buf[2] == 'G') {
+				if (buffer_starts_with(buf, "CFG")) {
 					tud_cdc_write_str("CONF PARSING\r\n");
 					mage_config::get_from_serial(buf + 4, count - 4, buf[3]);
+				}
+				else if (buffer_starts_with(buf, "CHNG")) {
+					if (count != 8) {
+						tud_cdc_write_str("ERROR: INVALID NUMBER OF BYTES IN CHANGE\r\n");
+						tud_cdc_write_flush();
+						return;
+					}
+					tud_cdc_write_str("CHANGING CONFIG\r\n");
+					mage_config::change_from_serial(buf + 4);
+				}
+				else if (buffer_starts_with(buf, "SAVE")) {
+					tud_cdc_write_str("SAVING CONFIG\r\n");
+					mage_config::save_config();
 				}
 			}
 			tud_cdc_write_flush();

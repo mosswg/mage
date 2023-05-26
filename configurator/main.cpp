@@ -44,6 +44,29 @@ const uint8_t config_control[CONFIG_CONTROL_SIZE] = {
 	MAGE_KEY_LOWER, HID_KEY_BACKSPACE, HID_KEY_CONTROL_RIGHT, HID_KEY_ENTER,
 };
 
+const uint8_t save_seq[4] = {'S', 'A', 'V', 'E'};
+
+void save_config(int SERIAL_USB) {
+	write( SERIAL_USB, save_seq, 4);
+}
+
+void write_default_config(int SERIAL_USB) {
+	int n_written = write( SERIAL_USB, config_high, CONFIG_PLANK_SIZE);
+	n_written = write( SERIAL_USB, config_normal, CONFIG_PLANK_SIZE);
+	n_written = write( SERIAL_USB, config_low, CONFIG_PLANK_SIZE);
+	n_written = write( SERIAL_USB, config_control, CONFIG_CONTROL_SIZE);
+	save_config(SERIAL_USB);
+
+	tcflush(SERIAL_USB, TCIOFLUSH);
+}
+
+void write_change(int SERIAL_USB, uint8_t state, uint8_t column, uint8_t row, uint8_t key) {
+	uint8_t data[8] = {
+		'C', 'H', 'N', 'G',
+		state, column, row, key,
+	};
+	write(SERIAL_USB, data, 8);
+}
 
 int main() {
 	int SERIAL_USB = open( "/dev/ttyACM0", O_RDWR| O_NOCTTY );
@@ -92,12 +115,9 @@ int main() {
 		exit(3);
 	}
 
-	int n_written = write( SERIAL_USB, config_high, CONFIG_PLANK_SIZE);
-	n_written = write( SERIAL_USB, config_normal, CONFIG_PLANK_SIZE);
-	n_written = write( SERIAL_USB, config_low, CONFIG_PLANK_SIZE);
-	n_written = write( SERIAL_USB, config_control, CONFIG_CONTROL_SIZE);
+	write_default_config(SERIAL_USB);
 
-	tcflush(SERIAL_USB, TCIOFLUSH);
+	write_change(SERIAL_USB, 1, 2, 2, HID_KEY_F);
 
 
 	return 0;
