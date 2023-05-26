@@ -45,7 +45,6 @@ const uint8_t config_control[CONFIG_CONTROL_SIZE] = {
 };
 
 
-
 int main() {
 	int SERIAL_USB = open( "/dev/ttyACM0", O_RDWR| O_NOCTTY );
 

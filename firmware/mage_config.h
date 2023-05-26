@@ -92,6 +92,12 @@ namespace mage_config {
 	uint8_t const key_to_ascii_table[128][2] =  { HID_KEYCODE_TO_ASCII };
 
 	inline void get_from_serial(uint8_t* serial_config, uint32_t size, uint8_t state) {
+		if (state > 3) {
+			tud_cdc_write_str("ERROR: State ");
+			tud_cdc_write_str(std::to_string(state).c_str());
+			tud_cdc_write_str(" Out of bounds\r\n");
+			return;
+		}
 		tud_cdc_write_str(("WRITING CONF FOR STATE: " + std::to_string(state) + "\r\n").c_str());
 
 
