@@ -14,12 +14,13 @@ class mage {
 	mcp23017 io2;
 	mcp23017 io3;
 	mcp23017 io4;
+	mcp23017 io_expanders[4];
 	uint8_t state;
 
 	static constexpr uint8_t KEY_POSITIONS_BUFFER_SIZE = 32;
 	uint16_t key_positions_buffer[KEY_POSITIONS_BUFFER_SIZE];
 
-	mage() : io1(mcp23017(0x20)), io2(mcp23017(0x21)), io3(mcp23017(0x22)), io4(mcp23017(0x23)), state(STATE_NORMAL) {}
+	mage() : io1(mcp23017(0x20)), io2(mcp23017(0x21)), io3(mcp23017(0x22)), io4(mcp23017(0x23)), io_expanders{io1, io2, io3, io4}, state(STATE_NORMAL) {}
 
 	int get_pressed_keys(uint8_t* buffer, int buffer_size, uint8_t& mods);
 

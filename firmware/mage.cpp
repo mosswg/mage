@@ -4,538 +4,42 @@
 int mage::get_pressed_keys(uint8_t* keys_buffer, int keys_buffer_size, uint8_t& mods) {
 	this->state = STATE_NORMAL;
 	for (int i = 0; i < KEY_POSITIONS_BUFFER_SIZE; i++) {
-		key_positions_buffer[i] = 0;
+		key_positions_buffer[i] = -1;
 	}
 	int buffer_index = 0;
-	if (!append_io1_bank_a_to_keys(key_positions_buffer, buffer_index, KEY_POSITIONS_BUFFER_SIZE, mods)) {
-		return 0;
-	}
-	if (!append_io1_bank_b_to_keys(key_positions_buffer, buffer_index, KEY_POSITIONS_BUFFER_SIZE, mods)) {
-		return 0;
-	}
 
-	if (!append_io2_bank_a_to_keys(key_positions_buffer, buffer_index, KEY_POSITIONS_BUFFER_SIZE, mods)) {
-		return 0;
-	}
-	if (!append_io2_bank_b_to_keys(key_positions_buffer, buffer_index, KEY_POSITIONS_BUFFER_SIZE, mods)) {
-		return 0;
-	}
 
-	if (!append_io3_bank_a_to_keys(key_positions_buffer, buffer_index, KEY_POSITIONS_BUFFER_SIZE, mods)) {
-		return 0;
-	}
-	if (!append_io3_bank_b_to_keys(key_positions_buffer, buffer_index, KEY_POSITIONS_BUFFER_SIZE, mods)) {
-		return 0;
-	}
+	for (int io_expander = 0; io_expander < mage_config::NUMBER_OF_IO_EXPANDERS; io_expander++) {
+		uint8_t bank = io_expanders[io_expander].get_bank_a();
+		uint8_t bank_b = io_expanders[io_expander].get_bank_b();
 
-	if (!append_io4_bank_a_to_keys(key_positions_buffer, buffer_index, KEY_POSITIONS_BUFFER_SIZE, mods)) {
-		return 0;
-	}
-	if (!append_io4_bank_b_to_keys(key_positions_buffer, buffer_index, KEY_POSITIONS_BUFFER_SIZE, mods)) {
-		return 0;
+		/// Go through each value in each bank
+		for (int b = 0; b < 2; b++) {
+			for (int bank_index = 0; bank_index < 8; bank_index++) {
+				if (bank & (0b1 << bank_index)) {
+					if (buffer_index + 1 >= keys_buffer_size) {
+						return 0;
+					}
+					key_positions_buffer[buffer_index++] = mage_config::get_column_and_row_from_io_expander(io_expander, b, bank_index);
+					#if 0
+					tud_cdc_write_str("Adding key at: ");
+					tud_cdc_write_str(std::to_string(mage_config::get_column_and_row_from_io_expander(io_expander, b, bank_index)).c_str());
+					tud_cdc_write_str(": ");
+					tud_cdc_write_str(std::to_string(key_positions_buffer[buffer_index - 1] >> 8).c_str());
+					tud_cdc_write_str(", ");
+					tud_cdc_write_str(std::to_string(key_positions_buffer[buffer_index - 1] & 0xff).c_str());
+					tud_cdc_write_str("\r\n");
+					#endif
+				}
+			}
+			/// Swap to second bank
+			bank = bank_b;
+		}
 	}
 
 	append_keys_from_postions_to_buffer(keys_buffer, keys_buffer_size, mods);
 
 	return buffer_index;
-}
-
-
-
-bool mage::append_io1_bank_a_to_keys(uint16_t* key_buffer, int& buffer_index, int key_buffer_size, uint8_t& mods) {
-	uint8_t bank = io1.get_bank_a();
-
-	if (bank & 0b1) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (6 << 8) | (0);
-	}
-
-	if (bank & 0b10) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (6 << 8) | (1);
-	}
-
-	if (bank & 0b100) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (6 << 8) | (2);
-	}
-
-	if (bank & 0b1000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (6 << 8) | (3);
-	}
-
-	if (bank & 0b10000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (-1 << 8) | (2);
-	}
-
-	if (bank & 0b100000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (-1 << 8) | (3);
-	}
-
-	if (bank & 0b1000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (-1 << 8) | (1);
-	}
-
-	if (bank & 0b10000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (-1 << 8) | (0);
-	}
-
-	return true;
-}
-
-bool mage::append_io1_bank_b_to_keys(uint16_t* key_buffer, int& buffer_index, int key_buffer_size, uint8_t& mods) {
-	uint8_t bank = io1.get_bank_b();
-
-	if (bank & 0b1) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (4 << 8) | (0);
-	}
-
-	if (bank & 0b10) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (4 << 8) | (1);
-	}
-
-	if (bank & 0b100) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (4 << 8) | (2);
-	}
-
-	if (bank & 0b1000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (4 << 8) | (3);
-	}
-
-	if (bank & 0b10000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (5 << 8) | (3);
-	}
-
-	if (bank & 0b100000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (5 << 8) | (2);
-	}
-
-	if (bank & 0b1000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (5 << 8) | (1);
-	}
-
-	if (bank & 0b10000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (5 << 8) | (0);
-	}
-
-	return true;
-}
-
-bool mage::append_io2_bank_a_to_keys(uint16_t* key_buffer, int& buffer_index, int key_buffer_size, uint8_t& mods) {
-	uint8_t bank = io2.get_bank_a();
-
-	if (bank & 0b1) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (2 << 8) | (0);
-	}
-
-	if (bank & 0b10) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (2 << 8) | (1);
-	}
-
-	if (bank & 0b100) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (2 << 8) | (2);
-	}
-
-	if (bank & 0b1000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (2 << 8) | (3);
-	}
-
-	if (bank & 0b10000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (3 << 8) | (0);
-	}
-
-	if (bank & 0b100000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (3 << 8) | (1);
-	}
-
-	if (bank & 0b1000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (3 << 8) | (2);
-	}
-
-	if (bank & 0b10000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (3 << 8) | (3);
-	}
-
-
-	return true;
-}
-bool mage::append_io2_bank_b_to_keys(uint16_t* key_buffer, int& buffer_index, int key_buffer_size, uint8_t& mods) {
-	uint8_t bank = io2.get_bank_b();
-
-	if (bank & 0b1) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (1 << 8) | (3);
-	}
-
-	if (bank & 0b10) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (1 << 8) | (2);
-	}
-
-	if (bank & 0b100) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (1 << 8) | (1);
-	}
-
-	if (bank & 0b1000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (1 << 8) | (0);
-	}
-
-	if (bank & 0b10000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (0 << 8) | (3);
-	}
-
-	if (bank & 0b100000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (0 << 8) | (2);
-	}
-
-	if (bank & 0b1000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (0 << 8) | (1);
-	}
-
-	if (bank & 0b10000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (0 << 8) | (0);
-	}
-
-	return true;
-}
-
-bool mage::append_io3_bank_a_to_keys(uint16_t* key_buffer, int& buffer_index, int key_buffer_size, uint8_t& mods) {
-	uint8_t bank = io3.get_bank_a();
-
-	if (bank & 0b1) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (11 << 8) | (0);
-	}
-
-	if (bank & 0b10) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (11 << 8) | (1);
-	}
-
-	if (bank & 0b100) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (11 << 8) | (2);
-	}
-
-	if (bank & 0b1000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (11 << 8) | (3);
-	}
-
-	if (bank & 0b10000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (10 << 8) | (0);
-	}
-
-	if (bank & 0b100000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (10 << 8) | (1);
-	}
-
-	if (bank & 0b1000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (10 << 8) | (2);
-	}
-
-	if (bank & 0b10000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (10 << 8) | (3);
-	}
-
-	return true;
-}
-
-bool mage::append_io3_bank_b_to_keys(uint16_t* key_buffer, int& buffer_index, int key_buffer_size, uint8_t& mods) {
-	uint8_t bank = io3.get_bank_b();
-
-	if (bank & 0b1) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (13 << 8) | (0);
-	}
-
-	if (bank & 0b10) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (13 << 8) | (1);
-	}
-
-	if (bank & 0b100) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (13 << 8) | (2);
-	}
-
-	if (bank & 0b1000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (13 << 8) | (3);
-	}
-
-	if (bank & 0b10000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (12 << 8) | (0);
-	}
-
-	if (bank & 0b100000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (12 << 8) | (1);
-	}
-
-	if (bank & 0b1000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (12 << 8) | (2);
-	}
-
-	if (bank & 0b10000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (12 << 8) | (3);
-	}
-
-	return true;
-}
-
-bool mage::append_io4_bank_a_to_keys(uint16_t* key_buffer, int& buffer_index, int key_buffer_size, uint8_t& mods) {
-	uint8_t bank = io4.get_bank_a();
-
-	if (bank & 0b1) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (7 << 8) | (0);
-	}
-
-	if (bank & 0b10) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (7 << 8) | (1);
-	}
-
-	if (bank & 0b100) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (7 << 8) | (2);
-	}
-
-	if (bank & 0b1000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (7 << 8) | (3);
-	}
-
-	if (bank & 0b10000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (-2 << 8) | (2);
-	}
-
-	if (bank & 0b100000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (-2 << 8) | (3);
-	}
-
-	if (bank & 0b1000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (-2 << 8) | (1);
-	}
-
-	if (bank & 0b10000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (-2 << 8) | (0);
-	}
-
-	return true;
-}
-
-bool mage::append_io4_bank_b_to_keys(uint16_t* key_buffer, int& buffer_index, int key_buffer_size, uint8_t& mods) {
-	uint8_t bank = io4.get_bank_b();
-
-	if (bank & 0b1) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (9 << 8) | (0);
-	}
-
-	if (bank & 0b10) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (9 << 8) | (1);
-	}
-
-	if (bank & 0b100) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (9 << 8) | (2);
-	}
-
-	if (bank & 0b1000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (9 << 8) | (3);
-	}
-
-	if (bank & 0b10000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (8 << 8) | (0);
-	}
-
-	if (bank & 0b100000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (8 << 8) | (1);
-	}
-
-	if (bank & 0b1000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (8 << 8) | (2);
-	}
-
-	if (bank & 0b10000000) {
-		if (buffer_index + 1 >= key_buffer_size) {
-			return false;
-		}
-		key_buffer[buffer_index++] = (8 << 8) | (3);
-	}
-
-	return true;
 }
 
 
@@ -647,7 +151,7 @@ void mage::append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_s
 
 	// Check for state keys pressed
 	for (int i = 0; i < KEY_POSITIONS_BUFFER_SIZE; i++) {
-		if (key_positions_buffer[i] == 0) {
+		if (key_positions_buffer[i] == -1) {
 			break;
 		}
 
@@ -684,7 +188,7 @@ void mage::append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_s
 
 	// Get the rest of the keys with the modified state
 	for (int i = 0; i < KEY_POSITIONS_BUFFER_SIZE; i++) {
-		if (key_positions_buffer[i] == 0) {
+		if (key_positions_buffer[i] == -1) {
 			break;
 		}
 
