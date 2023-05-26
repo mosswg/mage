@@ -93,28 +93,16 @@ uint8_t name_to_keycode(std::string name) {
 	for (char& c : name) {
 		c = toupper(c);
 	}
-	// Should probably change this to a hashmap
-	for (int i = 0; i < MAX_KEYCODE; i++) {
-		if (keycode_names[i] == name) {
-			return i;
-		}
-	}
-	std::cerr << "ERROR: Unknown key " << name << "\n";
-	return -1;
+	return get_from_map(name_to_key, name);
 }
 
-uint8_t string_to_state(std::string str) {
-	for (char& c : str) {
+uint8_t string_to_state(std::string name) {
+	for (char& c : name) {
 		c = toupper(c);
 	}
 
-	for (int i = 0; i < mage_const::MAX_STATE; i++) {
-		if (str == state_names[i] || str == std::to_string(i)) {
-			return i;
-		}
-	}
+	return get_from_map(name_to_state, name);
 
-	std::cerr << "ERROR: Unknown state " << str << "\n";
 
 	return -1;
 }
@@ -149,7 +137,12 @@ int main(int argc, char** argv) {
 		uint8_t column = std::stoi(argv[3]);
 		uint8_t row = std::stoi(argv[4]);
 		uint8_t key = name_to_keycode(argv[5]);
-		if (state == -1 || key == -1) {
+		if (state == -1) {
+			std::cerr << "ERROR: Unknown state " << state << "\n";
+			return 1;
+		}
+		if (key == -1) {
+			std::cerr << "ERROR: Unknown key " << key << "\n";
 			return 1;
 		}
 		if (column < 0 || column >= mage_const::NUMBER_OF_KEYS_IN_ROW) {
