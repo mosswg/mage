@@ -1,4 +1,4 @@
-# Mage keyboard
+# Mage keyboard (V2 Coming Soon)
 
 # Pictures (with kailh choc robins and MBK Legend Keycaps from [MKUltra Corporation](https://mkultra.click))
 ![Mage keyboard with one side angled inward](https://cdn.mossx.net/mage_keyboard/mage_stacked_medium.png)
@@ -6,7 +6,7 @@
 ![Mage keyboard plugged into an off screen computer](https://cdn.mossx.net/mage_keyboard/mage_plugged_in_medium.png)
 
 ## Design principles
- - Grid keyboards are annoying to design and build
+ - Resistor grid keyboards are annoying to design and build
  - Finger movement should be reduced as much as possible
 
 ## Inspiration
