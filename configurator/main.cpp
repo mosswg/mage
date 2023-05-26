@@ -1,11 +1,3 @@
-#include <iostream>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <termios.h>
-#include <stdlib.h>
-#include <string.h>
-#include <fstream>
 #include "main.h"
 
 
@@ -92,7 +84,7 @@ void fetch_config(int SERIAL_USB, uint8_t* out) {
 		if (!(i % mage_const::NUMBER_OF_KEYS_IN_PLANK)) {
 			std::cout << "\n";
 		}
-		std::cout << std::hex << (int)out[i] << "\t";
+		std::cout << keycode_names[out[i]] << "\t";
 	}
 	std::cout << std::dec << "\n";
 }
