@@ -9,7 +9,7 @@ int mage::get_pressed_keys(uint8_t* keys_buffer, int keys_buffer_size, uint8_t& 
 	int buffer_index = 0;
 
 
-	for (int io_expander = 0; io_expander < mage_config::NUMBER_OF_IO_EXPANDERS; io_expander++) {
+	for (int io_expander = 0; io_expander < mage_const::NUMBER_OF_IO_EXPANDERS; io_expander++) {
 		uint8_t bank = io_expanders[io_expander].get_bank_a();
 		uint8_t bank_b = io_expanders[io_expander].get_bank_b();
 
@@ -23,7 +23,7 @@ int mage::get_pressed_keys(uint8_t* keys_buffer, int keys_buffer_size, uint8_t& 
 					key_positions_buffer[buffer_index++] = mage_config::get_column_and_row_from_io_expander(io_expander, b, bank_index);
 					#if 0
 					tud_cdc_write_str("Adding key at: ");
-					tud_cdc_write_str(std::to_string(io_expander * mage_config::NUMBER_OF_KEYS_IN_IO_EXPANDER + b * 8 + bank_index).c_str());
+					tud_cdc_write_str(std::to_string(io_expander * mage_const::NUMBER_OF_KEYS_IN_IO_EXPANDER + b * 8 + bank_index).c_str());
 					tud_cdc_write_str(": ");
 					tud_cdc_write_str(std::to_string(key_positions_buffer[buffer_index - 1] >> 8).c_str());
 					tud_cdc_write_str(", ");
@@ -88,7 +88,7 @@ int mage::append_plank_key(uint8_t* key_buffer, int buffer_index, uint8_t& mods,
 
 	uint8_t key = get_plank_key(column, row, state);
 
-	if (key == mage_config::KEY_RAISE || key == mage_config::KEY_LOWER) {
+	if (key == mage_const::KEY_RAISE || key == mage_const::KEY_LOWER) {
 		return 0;
 	}
 
@@ -120,7 +120,7 @@ int mage::append_control_group_key(uint8_t* key_buffer, int buffer_index, uint8_
 
 	uint8_t key = get_control_group_key(group, index);
 
-	if (key == mage_config::KEY_RAISE || key == mage_config::KEY_LOWER) {
+	if (key == mage_const::KEY_RAISE || key == mage_const::KEY_LOWER) {
 		return 0;
 	}
 
@@ -137,11 +137,11 @@ int mage::append_control_group_key(uint8_t* key_buffer, int buffer_index, uint8_
 
 
 uint8_t mage::get_plank_key(uint8_t column, uint8_t row, uint8_t state) {
-	return mage_config::config_memory[mage_config::NUMBER_OF_KEYS_IN_PLANK * state + (row * mage_config::NUMBER_OF_KEYS_IN_ROW) + column];
+	return mage_config::config_memory[mage_const::NUMBER_OF_KEYS_IN_PLANK * state + (row * mage_const::NUMBER_OF_KEYS_IN_ROW) + column];
 }
 
 uint8_t mage::get_control_group_key(uint8_t group, uint8_t index) {
-	return mage_config::config_memory[mage_config::NUMBER_OF_KEYS_IN_PLANK * STATE_CONTROL + (mage_config::NUMBER_OF_KEYS_IN_CONTROL_GROUP * group) + index];
+	return mage_config::config_memory[mage_const::NUMBER_OF_KEYS_IN_PLANK * STATE_CONTROL + (mage_const::NUMBER_OF_KEYS_IN_CONTROL_GROUP * group) + index];
 }
 
 
@@ -168,7 +168,7 @@ void mage::append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_s
 			key = this->get_plank_key(column, row, STATE_NORMAL);
 		}
 
-		if (key == mage_config::KEY_RAISE) {
+		if (key == mage_const::KEY_RAISE) {
 			if (this->state == STATE_LOW) {
 				this->state = STATE_NORMAL;
 			}
@@ -176,7 +176,7 @@ void mage::append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_s
 				this->state = STATE_HIGH;
 			}
 		}
-		else if (key == mage_config::KEY_LOWER) {
+		else if (key == mage_const::KEY_LOWER) {
 			if (this->state == STATE_HIGH) {
 				this->state = STATE_NORMAL;
 			}

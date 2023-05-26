@@ -5,16 +5,15 @@
 #include <termios.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fstream>
 #include "main.h"
 
 
-const int NUMBER_OF_KEYS_IN_PLANK = 14 * 4;
-const int NUMBER_OF_KEYS_IN_CONTROL_GROUP = 4;
-const int CONFIG_PLANK_SIZE = NUMBER_OF_KEYS_IN_PLANK + 4;
-const int CONFIG_CONTROL_SIZE = (NUMBER_OF_KEYS_IN_CONTROL_GROUP * 2) + 4;
+const int CONFIG_PLANK_SIZE = mage_const::NUMBER_OF_KEYS_IN_PLANK + 4;
+const int CONFIG_CONTROL_SIZE = (mage_const::NUMBER_OF_KEYS_IN_CONTROL_GROUP * 2) + 4;
 
 const uint8_t config_high[CONFIG_PLANK_SIZE] = {
-	'C', 'F', 'G', 0,
+	'C', 'F', 'G', mage_const::STATE_HIGH,
 	HID_KEY_ARROW_UP,    HID_KEY_GRAVE,        HID_KEY_F1,        HID_KEY_F2,    HID_KEY_F3,     HID_KEY_F4,    HID_KEY_F5,    HID_KEY_F6,        HID_KEY_F7,         HID_KEY_F8,       HID_KEY_F9,         HID_KEY_F10,         HID_KEY_BRACKET_LEFT,  HID_KEY_ESCAPE,
 	HID_KEY_ARROW_LEFT,  HID_KEY_SPACE,        HID_KEY_1,         HID_KEY_2,     HID_KEY_3,      HID_KEY_4,     HID_KEY_5,     HID_KEY_6,         HID_KEY_7,          HID_KEY_8,        HID_KEY_9,          HID_KEY_0,           HID_KEY_BRACKET_RIGHT, HID_KEY_DELETE,
 	HID_KEY_ARROW_RIGHT, HID_KEY_CONTROL_LEFT, HID_KEY_EQUAL,     HID_KEY_NONE,  HID_KEY_NONE,   HID_KEY_NONE,  HID_KEY_NONE,  HID_KEY_NONE,      HID_KEY_NONE,       HID_KEY_NONE,     HID_KEY_NONE,       HID_KEY_NONE,        HID_KEY_NONE,          HID_KEY_TAB,
@@ -23,7 +22,7 @@ const uint8_t config_high[CONFIG_PLANK_SIZE] = {
 
 
 const uint8_t config_normal[CONFIG_PLANK_SIZE] = {
-	'C', 'F', 'G', 1,
+	'C', 'F', 'G', mage_const::STATE_NORMAL,
 	HID_KEY_ARROW_UP,    HID_KEY_ESCAPE,       HID_KEY_1,         HID_KEY_2,     HID_KEY_3,      HID_KEY_4,     HID_KEY_5,     HID_KEY_6,         HID_KEY_7,          HID_KEY_8,        HID_KEY_9,          HID_KEY_0,           HID_KEY_BRACKET_RIGHT, HID_KEY_ESCAPE,
 	HID_KEY_ARROW_LEFT,  HID_KEY_TAB,          HID_KEY_Q,         HID_KEY_W,     HID_KEY_E,      HID_KEY_R,     HID_KEY_T,     HID_KEY_Y,         HID_KEY_U,          HID_KEY_I,        HID_KEY_O,          HID_KEY_P,           HID_KEY_BRACKET_LEFT,  HID_KEY_DELETE,
 	HID_KEY_ARROW_RIGHT, HID_KEY_CONTROL_LEFT, HID_KEY_A,         HID_KEY_S,     HID_KEY_D,      HID_KEY_F,     HID_KEY_G,     HID_KEY_H,         HID_KEY_J,          HID_KEY_K,        HID_KEY_L,          HID_KEY_SEMICOLON,   HID_KEY_APOSTROPHE,    HID_KEY_TAB,
@@ -31,7 +30,7 @@ const uint8_t config_normal[CONFIG_PLANK_SIZE] = {
 };
 
 const uint8_t config_low[CONFIG_PLANK_SIZE] = {
-	'C', 'F', 'G', 2,
+	'C', 'F', 'G', mage_const::STATE_LOW,
 	HID_KEY_ARROW_UP,    HID_KEY_GRAVE,        HID_KEY_NONE,      HID_KEY_NONE,  HID_KEY_NONE,  HID_KEY_NONE,  HID_KEY_NONE,   HID_KEY_NONE,      HID_KEY_NONE,       HID_KEY_NONE,     HID_KEY_NONE,       HID_KEY_NONE,        HID_KEY_NONE,          HID_KEY_GRAVE,
 	HID_KEY_ARROW_LEFT,  HID_KEY_SPACE,        HID_KEY_F1,        HID_KEY_F2,    HID_KEY_F3,    HID_KEY_F4,    HID_KEY_F5,     HID_KEY_F6,        HID_KEY_F7,         HID_KEY_F8,       HID_KEY_F9,         HID_KEY_F10,         HID_KEY_F11,           HID_KEY_F12,
 	HID_KEY_ARROW_RIGHT, HID_KEY_CONTROL_LEFT, HID_KEY_ESCAPE,    HID_KEY_NONE,  HID_KEY_NONE,  HID_KEY_NONE,  HID_KEY_NONE,   HID_KEY_BACKSPACE, HID_KEY_ARROW_LEFT, HID_KEY_ARROW_UP, HID_KEY_ARROW_DOWN, HID_KEY_ARROW_RIGHT, HID_KEY_NONE,          HID_KEY_TAB,
@@ -39,7 +38,7 @@ const uint8_t config_low[CONFIG_PLANK_SIZE] = {
 };
 
 const uint8_t config_control[CONFIG_CONTROL_SIZE] = {
-	'C', 'F', 'G', 3,
+	'C', 'F', 'G', mage_const::STATE_CONTROL,
 	MAGE_KEY_RAISE, HID_KEY_GUI_LEFT, HID_KEY_CONTROL_LEFT, HID_KEY_SPACE,
 	MAGE_KEY_LOWER, HID_KEY_BACKSPACE, HID_KEY_CONTROL_RIGHT, HID_KEY_ENTER,
 };
