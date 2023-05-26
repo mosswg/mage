@@ -23,7 +23,7 @@ int mage::get_pressed_keys(uint8_t* keys_buffer, int keys_buffer_size, uint8_t& 
 					key_positions_buffer[buffer_index++] = mage_config::get_column_and_row_from_io_expander(io_expander, b, bank_index);
 					#if 0
 					tud_cdc_write_str("Adding key at: ");
-					tud_cdc_write_str(std::to_string(mage_config::get_column_and_row_from_io_expander(io_expander, b, bank_index)).c_str());
+					tud_cdc_write_str(std::to_string(io_expander * mage_config::NUMBER_OF_KEYS_IN_IO_EXPANDER + b * 8 + bank_index).c_str());
 					tud_cdc_write_str(": ");
 					tud_cdc_write_str(std::to_string(key_positions_buffer[buffer_index - 1] >> 8).c_str());
 					tud_cdc_write_str(", ");
