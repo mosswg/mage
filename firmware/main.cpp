@@ -147,11 +147,13 @@ void cdc_task(void) {
 					mage_config::save_config();
 				}
 				else if (buffer_starts_with(buf, "FCH")) {
-
 					if (count != 4) {
 						tud_cdc_write_str("ERROR: FETCH MUST SPECIFY STATE\r\n");
 					}
 					mage_config::fetch_config(buf[3]);
+				}
+				else if (buffer_starts_with(buf, "RSTR")) {
+					mage_config::read_config_from_flash();
 				}
 			}
 			tud_cdc_write_flush();

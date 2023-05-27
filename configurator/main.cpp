@@ -1,4 +1,5 @@
 #include "main.h"
+#include "tui/tui.hpp"
 
 
 const int CONFIG_PLANK_SIZE = mage_const::NUMBER_OF_KEYS_IN_PLANK + 4;
@@ -42,8 +43,15 @@ const uint8_t fetch_normal_seq[4] = {'F', 'C', 'H', mage_const::STATE_NORMAL};
 const uint8_t fetch_low_seq[4] = {'F', 'C', 'H', mage_const::STATE_LOW};
 const uint8_t fetch_control_seq[4] = {'F', 'C', 'H', mage_const::STATE_CONTROL};
 
+
+const uint8_t restore_seq[4] = {'R', 'S', 'T', 'R'};
+
 void save_config(int SERIAL_USB) {
 	write( SERIAL_USB, save_seq, 4);
+}
+
+void restore_config(int SERIAL_USB) {
+	write( SERIAL_USB, restore_seq, 4);
 }
 
 void write_default_config(int SERIAL_USB) {
@@ -51,7 +59,6 @@ void write_default_config(int SERIAL_USB) {
 	n_written = write( SERIAL_USB, config_normal, CONFIG_PLANK_SIZE);
 	n_written = write( SERIAL_USB, config_low, CONFIG_PLANK_SIZE);
 	n_written = write( SERIAL_USB, config_control, CONFIG_CONTROL_SIZE);
-	save_config(SERIAL_USB);
 
 	tcflush(SERIAL_USB, TCIOFLUSH);
 }
@@ -77,6 +84,9 @@ void fetch_config(int SERIAL_USB, uint8_t* out) {
 	write(SERIAL_USB, fetch_control_seq, 4);
 	read(SERIAL_USB, out + (mage_const::NUMBER_OF_KEYS_IN_PLANK * 3), mage_const::NUMBER_OF_KEYS_IN_CONTROL_GROUP * 2);
 
+}
+
+void print_config(uint8_t* config) {
 	for (int i = 0; i < mage_const::CONFIG_SIZE; i++) {
 		if (!(i % mage_const::NUMBER_OF_KEYS_IN_ROW)) {
 			std::cout << "\n";
@@ -84,9 +94,9 @@ void fetch_config(int SERIAL_USB, uint8_t* out) {
 		if (!(i % mage_const::NUMBER_OF_KEYS_IN_PLANK)) {
 			std::cout << "\n";
 		}
-		std::cout << keycode_names[out[i]] << "\t";
+		std::cout << keycode_names[config[i]] << "\t";
 	}
-	std::cout << std::dec << "\n";
+	std::cout << std::endl;
 }
 
 uint8_t name_to_keycode(std::string name) {
@@ -115,7 +125,7 @@ int main(int argc, char** argv) {
 	int SERIAL_USB = open( "/dev/ttyACM0", O_RDWR| O_NOCTTY );
 
 	if (SERIAL_USB < 0) {
-		perror("Error while opening device: ");
+		perror("Error while opening device");
 		exit(1);
 	}
 
@@ -124,8 +134,10 @@ int main(int argc, char** argv) {
 	init_tty(SERIAL_USB, tty);
 
 	if (argc < 2) {
-		print_usage();
-		return 1;
+		uint8_t config[mage_const::CONFIG_SIZE];
+		memset(config, 0, mage_const::CONFIG_SIZE);
+		fetch_config(SERIAL_USB, config);
+		run_tui(config);
 	}
 
 	if (stris(argv[1], "change")) {
@@ -145,16 +157,17 @@ int main(int argc, char** argv) {
 			std::cerr << "ERROR: Unknown key " << key << "\n";
 			return 1;
 		}
-		if (column < 0 || column >= mage_const::NUMBER_OF_KEYS_IN_ROW) {
+		if (column < 1 || column > mage_const::NUMBER_OF_KEYS_IN_ROW) {
 			std::cerr << "ERROR: Column out of bounds\n";
 			return 1;
 		}
-		if (row < 0 || row >= mage_const::NUMBER_OF_KEYS_IN_COLUMN) {
+		if (row < 1 || row > mage_const::NUMBER_OF_KEYS_IN_COLUMN) {
 			std::cerr << "ERROR: Row out of bounds\n";
 			return 1;
 		}
 
-		write_change(SERIAL_USB, state, column, row, key);
+		// Change from indexing from 1 to 0
+		write_change(SERIAL_USB, state, column - 1, row - 1, key);
 	}
 	else if (stris(argv[1], "default")) {
 		write_default_config(SERIAL_USB);
@@ -162,10 +175,14 @@ int main(int argc, char** argv) {
 	else if (stris(argv[1], "save")) {
 		save_config(SERIAL_USB);
 	}
+	else if (stris(argv[1], "restore")) {
+		restore_config(SERIAL_USB);
+	}
 	else if (stris(argv[1], "fetch")) {
 		uint8_t config[mage_const::CONFIG_SIZE];
 		memset(config, 0, mage_const::CONFIG_SIZE);
 		fetch_config(SERIAL_USB, config);
+		print_config(config);
 	}
 
 
@@ -230,6 +247,9 @@ void print_usage() {
 	out << "\t\t\tArguments: NONE\n\n";
 	out << "\t\tsave:\n";
 	out << "\t\t\tSave the current configuration to flash\n";
+	out << "\t\t\tArguments: NONE\n\n";
+	out << "\t\trestore:\n";
+	out << "\t\t\tRestore the configuration from flash\n";
 	out << "\t\t\tArguments: NONE\n\n";
 	out << "\t\tfetch:\n";
 	out << "\t\t\tGet the current configuration from the keyboard\n";
