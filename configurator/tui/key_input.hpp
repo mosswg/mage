@@ -21,9 +21,12 @@
 #include "ftxui/screen/string.hpp"           // for string_width
 #include "ftxui/util/ref.hpp"                // for StringRef, Ref
 #include "ftxui/../../src/ftxui/screen/string_internal.hpp" // This is terrible and I am so sorry you had to look at it. However, I have no idea how to access this file other than this so you can blame Arthur Sonzogni for how he designed this library.
+#include "../serial.h"
 
 
 namespace mage {
+
+extern int GLOBAL_SERIAL_USB;
 
 using namespace ftxui;
 
@@ -42,8 +45,8 @@ inline T clamp(T value, T min, T max) {
 class KeyInput : public ComponentBase {
 	public:
 	// NOLINTNEXTLINE
-	KeyInput(StringRef content, const std::string& start = "", bool disabled = false, Ref<InputOption> option = {})
-		: content_(std::move(content)), option_(std::move(option)), disabled(disabled) {
+	KeyInput(StringRef content, const uint8_t key_column, const uint8_t key_row, const uint8_t key_state, const std::string& start = "", bool disabled = false, Ref<InputOption> option = {})
+		:  disabled(disabled), column(key_column), row(key_row), state(key_state), content_(std::move(content)), option_(std::move(option)) {
 		if (start != "") {
 			option_->cursor_position = start.length();
 			*content_ = start;
@@ -51,15 +54,22 @@ class KeyInput : public ComponentBase {
 		else {
 			option_->cursor_position = content_->length();
 		}
+		log_file.open("ki.log");
+
+		key_name = *content_;
 	}
 
 	KeyInput()
-		: content_(""), option_({}), disabled(true) {
+		: disabled(true), column(-1), row(-1), state(-1), key_name(""), content_(""), option_({}) {
 	}
 
 	private:
 	bool taking_input = false;
 	bool disabled = false;
+	bool last_was_valid = true;
+	const uint8_t column, row, state;
+	std::string key_name;
+	std::ofstream log_file;
 	// Component implementation:
 	Element Render() override {
 		const bool is_focused = Focused();
@@ -75,10 +85,20 @@ class KeyInput : public ComponentBase {
 				element = text("");
 			}
 			else {
-				element = text(*content_);
+				element = text(key_name);
 			}
 
 			element = element | flex | frame;
+
+			if (is_focused) {
+				if (!this->last_was_valid) {
+					element |= color(Color::Red);
+				}
+			}
+			else {
+				// Remove the error color if we are not focused
+				this->last_was_valid = true;
+			}
 
 			return transform({
 				std::move(element), hovered_, is_focused,
@@ -118,15 +138,23 @@ class KeyInput : public ComponentBase {
 			element |= focus;
 		}
 
-		if (this->taking_input) {
-			element |= color(Color::BlueLight);
-		}
+		element |= color(Color::BlueLight);
 
 		return transform({
 			std::move(element), hovered_, is_focused,
 			false
 		  }) |
 		  xflex | reflect(box_);
+	}
+
+	void revert_text() {
+		option_->cursor_position = key_name.size();
+		*content_ = key_name;
+	}
+
+	void save_text() {
+		option_->cursor_position = content_->size();
+		key_name = *content_;
 	}
 
 	Element Text(const std::string& input) {
@@ -136,6 +164,21 @@ class KeyInput : public ComponentBase {
 	bool HandleReturn() {
 		if (this->disabled) {
 			return false;
+		}
+		if (this->taking_input) {
+			log_file << "Ending input with " << *this->content_ << "\n";
+			auto kc = mage::name_to_keycode(*this->content_);
+			if (kc == (uint8_t)-1) {
+				log_file << "Reverting text\n";
+				this->taking_input = !this->taking_input;
+				this->revert_text();
+				this->last_was_valid = false;
+				return true;
+			}
+			this->save_text();
+			mage::write_change(GLOBAL_SERIAL_USB, this->state, this->column, this->row, kc);
+			this->last_was_valid = true;
+			log_file << "changing " << (int)state << ", " << (int)column << ", " << (int)row << ": " << mage::keycode_names[kc] << " from " << *this->content_ << "\n";
 		}
 		this->taking_input = !this->taking_input;
 		return true;
@@ -147,6 +190,9 @@ class KeyInput : public ComponentBase {
 		}
 		if (this->taking_input) {
 			this->taking_input = false;
+			// Discard the current text if escape is pressed
+			this->revert_text();
+			this->last_was_valid = true;
 			return true;
 		}
 		return false;
@@ -320,8 +366,8 @@ class KeyInput : public ComponentBase {
 	Ref<InputOption> option_;
 };
 
-  inline ftxui::Component MakeKeyInput(ftxui::StringRef content, const std::string& start = "", ftxui::Ref<ftxui::InputOption> option = {}) {
-	return Make<KeyInput>(content, start, false, option);
+  inline ftxui::Component MakeKeyInput(ftxui::StringRef content, uint8_t column, uint8_t row, uint8_t state, const std::string& start = "", ftxui::Ref<ftxui::InputOption> option = {}) {
+	return Make<KeyInput>(content, column, row, state, start, false, option);
   }
 
   inline ftxui::Component MakeDisabledKeyInput() {

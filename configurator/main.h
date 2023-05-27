@@ -2,11 +2,5 @@
 #include "../include/mage_const.h"
 #include <string>
 #include <iostream>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <termios.h>
-#include <stdlib.h>
-#include <string.h>
-#include <fstream>
-#include "keycode_helpers.h"
+#include "keycode.h"
+#include "serial.h"

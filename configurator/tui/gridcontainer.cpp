@@ -97,24 +97,25 @@ class GridContainer : public ContainerBase {
 public:
 
   std::ofstream log_file;
-  int selectorx, selectory;
   std::vector<std::vector<Component>> lines;
+  int selectorx, selectory, dummy_selector;
 
-	GridContainer(std::vector<std::vector<Component>> lines, int selectorx = 0, int selectory = 0) : lines(std::move(lines)), selectorx(selectorx), selectory(selectory), ContainerBase(squash_vec_vec(lines), &selectorx) {
+	GridContainer(std::vector<std::vector<Component>> component_lines, int selectorx = 0, int selectory = 0) : ContainerBase(squash_vec_vec(component_lines), &dummy_selector), lines(std::move(component_lines)), selectorx(selectorx), selectory(selectory) {
 		log_file.open("log.log");
+		dummy_selector = 0;
 	}
 
 	void clamp_selectors() {
 		if (selectory < 0) {
 			selectory = 0;
 		}
-		else if (selectory >= lines.size()) {
+		else if (selectory >= (int)lines.size()) {
 			selectory = lines.size() - 1;
 		}
 		if (selectorx < 0) {
 			selectorx = 0;
 		}
-		else if (selectorx >= lines[selectory].size()) {
+		else if (selectorx >= (int)lines[selectory].size()) {
 			selectorx = lines[selectory].size() - 1;
 		}
 		log_file << "clmp: " << selectorx << ", " << selectory << "\n";

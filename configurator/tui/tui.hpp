@@ -13,7 +13,8 @@
 #include "key_input.hpp"
 #include "gridcontainer.hpp"
 #include "../../include/mage_const.h"
-#include "../keycode_helpers.h"
+#include "../keycode.h"
+#include "../serial.h"
 
 
-void run_tui(uint8_t* config_keycodes);
+void run_tui(int SERIAL_USB, uint8_t* config_keycodes);
