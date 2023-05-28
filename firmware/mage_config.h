@@ -131,6 +131,8 @@ namespace mage_config {
 			return;
 		}
 
+		sleep_ms(5);
+		// Sleep to allow the receiver time to start reading
 		if (state == mage_const::STATE_CONTROL) {
 			tud_cdc_write(config_memory + (mage_const::NUMBER_OF_KEYS_IN_PLANK * state), mage_const::NUMBER_OF_KEYS_IN_CONTROL_GROUP * 2);
 		}
