@@ -20,9 +20,15 @@
 #include "ftxui/screen/box.hpp"    // for Box
 #include "ftxui/screen/string.hpp"           // for string_width
 #include "ftxui/util/ref.hpp"                // for StringRef, Ref
-#include "ftxui/../../src/ftxui/screen/string_internal.hpp" // This is terrible and I am so sorry you had to look at it. However, I have no idea how to access this file other than this so you can blame Arthur Sonzogni for how he designed this library.
 #include "../serial.h"
 
+
+namespace ftxui {
+	// Expose functions defined in ftxui/screen/string.cpp
+	// This is available in ftxui/screen/string_internal.hpp but this is not publicly available from here
+	size_t GlyphPrevious(const std::string& input, size_t start);
+	size_t GlyphNext(const std::string& input, size_t start);
+}
 
 namespace mage {
 
