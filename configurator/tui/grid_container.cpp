@@ -1,5 +1,5 @@
-#include "grid_container.hpp"
-#include "key_input.hpp"
+#include "grid_container.h"
+#include "key_input.h"
 
 using namespace ftxui;
 

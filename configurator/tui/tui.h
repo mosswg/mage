@@ -10,8 +10,8 @@
 #include "ftxui/component/screen_interactive.hpp"  // for Component, ScreenInteractive
 #include "ftxui/dom/elements.hpp"                  // for text, hbox, Element
 
-#include "key_input.hpp"
-#include "grid_container.hpp"
+#include "key_input.h"
+#include "grid_container.h"
 #include "../../include/mage_const.h"
 #include "../keycode.h"
 #include "../serial.h"

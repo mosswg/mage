@@ -1,4 +1,4 @@
-#include "tui.hpp"
+#include "tui.h"
 
 using namespace ftxui;
 
