@@ -74,6 +74,28 @@ namespace mage {
 		tcflush(SERIAL_USB, TCIOFLUSH);
 	}
 
+
+	inline void write_config(int SERIAL_USB, uint8_t* config) {
+		uint8_t config_high[CONFIG_PLANK_SIZE] = {'C', 'F', 'G', mage_const::STATE_HIGH};
+		uint8_t config_normal[CONFIG_PLANK_SIZE] = {'C', 'F', 'G', mage_const::STATE_NORMAL};
+		uint8_t config_low[CONFIG_PLANK_SIZE] = {'C', 'F', 'G', mage_const::STATE_LOW};
+		uint8_t config_control[CONFIG_CONTROL_SIZE] = {'C', 'F', 'G', mage_const::STATE_CONTROL};
+
+
+		memcpy(config_high + 4, config, mage_const::NUMBER_OF_KEYS_IN_PLANK);
+		memcpy(config_normal + 4, config + mage_const::NUMBER_OF_KEYS_IN_PLANK, mage_const::NUMBER_OF_KEYS_IN_PLANK);
+		memcpy(config_low + 4, config + (2 * mage_const::NUMBER_OF_KEYS_IN_PLANK), mage_const::NUMBER_OF_KEYS_IN_PLANK);
+		memcpy(config_control + 4, config + (3 * mage_const::NUMBER_OF_KEYS_IN_PLANK), mage_const::NUMBER_OF_KEYS_IN_CONTROL_GROUP * 2);
+
+		write( SERIAL_USB, config_high, CONFIG_PLANK_SIZE);
+		write( SERIAL_USB, config_normal, CONFIG_PLANK_SIZE);
+		write( SERIAL_USB, config_low, CONFIG_PLANK_SIZE);
+		write( SERIAL_USB, config_control, CONFIG_CONTROL_SIZE);
+
+		tcflush(SERIAL_USB, TCIOFLUSH);
+	}
+
+
 	inline void write_change(int SERIAL_USB, uint8_t state, uint8_t column, uint8_t row, uint8_t key) {
 		uint8_t data[8] = {
 			'C', 'H', 'N', 'G',

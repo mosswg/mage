@@ -67,6 +67,39 @@ int main(int argc, char** argv) {
 		mage::fetch_config(SERIAL_USB, config);
 		mage::print_config(config);
 	}
+	else if (stris(argv[1], "upload")) {
+		if (argc < 3) {
+			std::cout << "Too few arguments for upload\n";
+			print_usage();
+		}
+
+		char* filename = argv[2];
+		uint8_t config[mage_const::CONFIG_SIZE];
+		mage::load_config_from_file(filename, config);
+		mage::write_config(SERIAL_USB, config);
+	}
+	else if (stris(argv[1], "download")) {
+		if (argc < 3) {
+			std::cout << "Too few arguments for download\n";
+			print_usage();
+		}
+
+		char* filename = argv[2];
+		uint8_t config[mage_const::CONFIG_SIZE];
+		mage::fetch_config(SERIAL_USB, config);
+		mage::save_config_to_file(filename, config);
+	}
+	else if (stris(argv[1], "edit")) {
+		if (argc < 3) {
+			std::cout << "Too few arguments for edit\n";
+			print_usage();
+		}
+
+		char* filename = argv[2];
+		uint8_t config[mage_const::CONFIG_SIZE];
+		mage::load_config_from_file(filename, config);
+		run_tui(SERIAL_USB, config);
+	}
 
 
 	return 0;
