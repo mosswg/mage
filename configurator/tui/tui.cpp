@@ -43,8 +43,20 @@ void run_tui(int SERIAL_USB, uint8_t* config_keycodes) {
 
 	auto screen = ScreenInteractive::TerminalOutput();
 
-	screen.Loop(component);
+	component |= CatchEvent([&](Event event) {
+		if (component->ActiveChild() && component->ActiveChild()->OnEvent(event)) {
+			return true;
+		}
+		/// Allow leaving the tui
+		if (event == Event::Character('q') || event == Event::Escape) {
+			screen.ExitLoopClosure()();
+			return true;
+		}
 
+		return false;
+	});
+
+	screen.Loop(component);
 }
 
 // Copyright 2020 Arthur Sonzogni. All rights reserved.

@@ -212,9 +212,9 @@ class KeyInput : public ComponentBase {
 			content_->insert(cursor_position, character);
 			cursor_position += character.size();
 			option_->on_change();
+			return true;
 		}
-
-		return true;
+		return false;
 	}
 
 	bool HandleArrowLeft() {
