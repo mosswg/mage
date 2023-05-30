@@ -11,7 +11,7 @@
 #include "ftxui/dom/elements.hpp"                  // for text, hbox, Element
 
 #include "key_input.hpp"
-#include "gridcontainer.hpp"
+#include "grid_container.hpp"
 #include "../../include/mage_const.h"
 #include "../keycode.h"
 #include "../serial.h"

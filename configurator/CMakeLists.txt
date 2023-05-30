@@ -31,7 +31,7 @@ add_compile_options(-Wall
 add_executable(mage_configurator
 	main.cpp
 	tui/tui.cpp
-	tui/gridcontainer.cpp
+	tui/grid_container.cpp
 	)
 
 target_include_directories(mage_configurator PRIVATE src)
