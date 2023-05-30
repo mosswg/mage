@@ -1,11 +1,9 @@
 #include "main.h"
-#include "tui/tui.hpp"
+#include "tui/tui.h"
 
 
 void init_tty(int, struct termios&);
 void print_usage();
-bool stris(char*, std::string);
-
 int main(int argc, char** argv) {
 	int SERIAL_USB = open( "/dev/ttyACM0", O_RDWR| O_NOCTTY );
 
@@ -139,14 +137,4 @@ void print_usage() {
 	out << "\t\tfetch:\n";
 	out << "\t\t\tGet the current configuration from the keyboard\n";
 	out << "\t\t\tArguments: NONE\n\n";
-}
-
-
-bool stris(char* cp, std::string str) {
-	for (int i = 0; i < (int)str.length() && cp[i]; i++) {
-		if (cp[i] != str[i]) {
-			return false;
-		}
-	}
-	return true;
 }
