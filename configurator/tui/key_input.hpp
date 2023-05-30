@@ -172,10 +172,8 @@ class KeyInput : public ComponentBase {
 			return false;
 		}
 		if (this->taking_input) {
-			log_file << "Ending input with " << *this->content_ << "\n";
 			auto kc = mage::name_to_keycode(*this->content_);
 			if (kc == (uint8_t)-1) {
-				log_file << "Reverting text\n";
 				this->taking_input = !this->taking_input;
 				this->revert_text();
 				this->last_was_valid = false;
@@ -184,7 +182,6 @@ class KeyInput : public ComponentBase {
 			this->save_text();
 			mage::write_change(GLOBAL_SERIAL_USB, this->state, this->column, this->row, kc);
 			this->last_was_valid = true;
-			log_file << "changing " << (int)state << ", " << (int)column << ", " << (int)row << ": " << mage::keycode_names[kc] << " from " << *this->content_ << "\n";
 		}
 		this->taking_input = !this->taking_input;
 		return true;

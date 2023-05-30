@@ -118,7 +118,6 @@ public:
 		else if (selectorx >= (int)lines[selectory].size()) {
 			selectorx = lines[selectory].size() - 1;
 		}
-		log_file << "clmp: " << selectorx << ", " << selectory << "\n";
 	}
 
   Element Render() override {
@@ -159,7 +158,6 @@ public:
 
   void MoveSelectorX(int dir) {
 	auto& line = lines[selectory];
-	log_file << "linen: " << line.size() << "\n";
 	for (int i = selectorx + dir; i >= 0 && i < int(line.size());
 		 i += dir) {
 	  if (line[i]->Focusable()) {
@@ -185,7 +183,6 @@ public:
   }
 
   void MoveSelectorY(int dir) {
-	log_file << "linesn: " << lines.size() << "\n";
 	for (int i = selectory + dir; i >= 0 && i < int(lines.size());
 		 i += dir) {
 	  if (lines[i][selectorx]->Focusable()) {
@@ -275,7 +272,6 @@ public:
 	}
 
 	clamp_selectors();
-	log_file << "selx: " << selectorx << "\tsely: " << selectory << "\n";
 	return old_selected_x != selectorx || old_selected_y != selectory;
   }
 
