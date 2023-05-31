@@ -7,7 +7,7 @@
 
 namespace mage_config {
 
-#define CONFIG_FLASH_OFFSET (32 * FLASH_SECTOR_SIZE)
+#define CONFIG_FLASH_OFFSET PICO_FLASH_SIZE_BYTES - (8 * FLASH_SECTOR_SIZE)
 
 	inline const uint8_t *config_flash = (const uint8_t *) (XIP_BASE + CONFIG_FLASH_OFFSET);
 	inline uint8_t config_memory[FLASH_PAGE_SIZE];
