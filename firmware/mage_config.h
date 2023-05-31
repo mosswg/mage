@@ -39,13 +39,27 @@ namespace mage_config {
 // Remove annoynig "narrowing" warning just for these few lines
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnarrowing"
-	inline const uint16_t io_expander_column_row_mappings[mage_const::NUMBER_OF_KEYS_IN_IO_EXPANDER * mage_const::NUMBER_OF_IO_EXPANDERS] = {
+	inline const uint16_t magev1_io_expander_column_row_mappings[mage_const::NUMBER_OF_KEYS_IN_IO_EXPANDER * mage_const::NUMBER_OF_IO_EXPANDERS] = {
 		( 6 << 8) | (0), ( 6 << 8) | (1), ( 6 << 8) | (2), ( 6 << 8) | (3), (-1 << 8) | (2), (-1 << 8) | (3), (-1 << 8) | (1), (-1 << 8) | (0), ( 4 << 8) | (0), ( 4 << 8) | (1), ( 4 << 8) | (2), ( 4 << 8) | (3), ( 5 << 8) | (3), ( 5 << 8) | (2), ( 5 << 8) | (1), ( 5 << 8) | (0),
 		( 2 << 8) | (0), ( 2 << 8) | (1), ( 2 << 8) | (2), ( 2 << 8) | (3), ( 3 << 8) | (0), ( 3 << 8) | (1), ( 3 << 8) | (2), ( 3 << 8) | (3), ( 1 << 8) | (3), ( 1 << 8) | (2), ( 1 << 8) | (1), ( 1 << 8) | (0), ( 0 << 8) | (3), ( 0 << 8) | (2), ( 0 << 8) | (1), ( 0 << 8) | (0),
 		(11 << 8) | (0), (11 << 8) | (1), (11 << 8) | (2), (11 << 8) | (3), (10 << 8) | (0), (10 << 8) | (1), (10 << 8) | (2), (10 << 8) | (3), (13 << 8) | (0), (13 << 8) | (1), (13 << 8) | (2), (13 << 8) | (3), (12 << 8) | (0), (12 << 8) | (1), (12 << 8) | (2), (12 << 8) | (3),
 		( 7 << 8) | (0), ( 7 << 8) | (1), ( 7 << 8) | (2), ( 7 << 8) | (3), (-2 << 8) | (2), (-2 << 8) | (3), (-2 << 8) | (1), (-2 << 8) | (0), ( 9 << 8) | (0), ( 9 << 8) | (1), ( 9 << 8) | (2), ( 9 << 8) | (3), ( 8 << 8) | (0), ( 8 << 8) | (1), ( 8 << 8) | (2), ( 8 << 8) | (3),
 	};
+	inline const uint16_t magev2_io_expander_column_row_mappings[mage_const::NUMBER_OF_KEYS_IN_IO_EXPANDER * mage_const::NUMBER_OF_IO_EXPANDERS] = {
+		/* io0-a */ ( 2 << 8) | (0), ( 2 << 8) | (1), ( 2 << 8) | (2), ( 2 << 8) | (3), ( 3 << 8) | (0), ( 3 << 8) | (1), ( 3 << 8) | (2), ( 3 << 8) | (3), /* io0-b */ ( 0 << 8) | (0), ( 0 << 8) | (1), ( 0 << 8) | (2), ( 0 << 8) | (3), ( 1 << 8) | (0), ( 1 << 8) | (1), ( 1 << 8) | (2), ( 1 << 8) | (3),
+		/* io1-a */ ( 6 << 8) | (0), ( 6 << 8) | (1), ( 6 << 8) | (2), ( 6 << 8) | (3), (-1 << 8) | (2), (-1 << 8) | (3), (-1 << 8) | (1), (-1 << 8) | (0), /* io1-b */ ( 4 << 8) | (0), ( 4 << 8) | (1), ( 4 << 8) | (2), ( 4 << 8) | (3), ( 5 << 8) | (0), ( 5 << 8) | (1), ( 5 << 8) | (2), ( 5 << 8) | (3),
+		/* io2-a */ (11 << 8) | (0), (11 << 8) | (1), (11 << 8) | (2), (11 << 8) | (3), (10 << 8) | (0), (10 << 8) | (1), (10 << 8) | (2), (10 << 8) | (3), /* io2-b */ (13 << 8) | (0), (13 << 8) | (1), (13 << 8) | (2), (13 << 8) | (3), (12 << 8) | (0), (12 << 8) | (1), (12 << 8) | (2), (12 << 8) | (3),
+		/* io3-a */ ( 7 << 8) | (0), ( 7 << 8) | (1), ( 7 << 8) | (2), ( 7 << 8) | (3), (-2 << 8) | (0), (-2 << 8) | (1), (-2 << 8) | (2), (-2 << 8) | (3), /* io3-b */ ( 9 << 8) | (0), ( 9 << 8) | (1), ( 9 << 8) | (2), ( 9 << 8) | (3), ( 8 << 8) | (0), ( 8 << 8) | (1), ( 8 << 8) | (2), ( 8 << 8) | (3),
+	};
 #pragma GCC diagnostic pop
+
+
+#define MAGEV2
+#ifdef MAGEV2
+	inline const uint16_t* io_expander_column_row_mappings = magev2_io_expander_column_row_mappings;
+#else
+	inline const uint16_t* io_expander_column_row_mappings = magev1_io_expander_column_row_mappings;
+#endif
 
 	inline uint16_t get_column_and_row_from_io_expander(uint8_t expander, bool bank_b, uint8_t index) {
 		return io_expander_column_row_mappings[(mage_const::NUMBER_OF_KEYS_IN_IO_EXPANDER * expander) + (bank_b * 8) + index];
