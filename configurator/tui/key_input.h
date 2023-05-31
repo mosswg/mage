@@ -32,8 +32,6 @@ namespace ftxui {
 
 namespace mage {
 
-extern int GLOBAL_SERIAL_USB;
-
 using namespace ftxui;
 
 template <typename T>
@@ -51,8 +49,8 @@ inline T clamp(T value, T min, T max) {
 class KeyInput : public ComponentBase {
 	public:
 	// NOLINTNEXTLINE
-	KeyInput(StringRef content, const uint8_t key_column, const uint8_t key_row, const uint8_t key_state, const std::string& start = "", bool disabled = false, Ref<InputOption> option = {})
-		:  disabled(disabled), column(key_column), row(key_row), state(key_state), content_(std::move(content)), option_(std::move(option)) {
+	KeyInput(StringRef content, const uint8_t key_column, const uint8_t key_row, const uint8_t key_state, uint8_t* config_to_modify, const std::string& start = "", bool disabled = false, Ref<InputOption> option = {})
+		:  disabled(disabled), column(key_column), row(key_row), state(key_state), config_ptr(config_to_modify), content_(std::move(content)), option_(std::move(option)) {
 		if (start != "") {
 			option_->cursor_position = start.length();
 			*content_ = start;
@@ -66,7 +64,7 @@ class KeyInput : public ComponentBase {
 	}
 
 	KeyInput()
-		: disabled(true), column(-1), row(-1), state(-1), key_name(""), content_(""), option_({}) {
+		: disabled(true), column(-1), row(-1), state(-1), config_ptr(nullptr), key_name(""), content_(""), option_({}) {
 	}
 
 	private:
@@ -74,6 +72,7 @@ class KeyInput : public ComponentBase {
 	bool disabled = false;
 	bool last_was_valid = true;
 	const uint8_t column, row, state;
+	uint8_t* config_ptr;
 	std::string key_name;
 	std::ofstream log_file;
 	// Component implementation:
@@ -180,7 +179,7 @@ class KeyInput : public ComponentBase {
 				return true;
 			}
 			this->save_text();
-			mage::write_change(GLOBAL_SERIAL_USB, this->state, this->column, this->row, kc);
+			config_ptr[mage_const::NUMBER_OF_KEYS_IN_PLANK * this->state + (this->row * mage_const::NUMBER_OF_KEYS_IN_ROW) + this->column] = kc;
 			this->last_was_valid = true;
 		}
 		this->taking_input = !this->taking_input;
@@ -369,8 +368,8 @@ class KeyInput : public ComponentBase {
 	Ref<InputOption> option_;
 };
 
-  inline ftxui::Component MakeKeyInput(ftxui::StringRef content, uint8_t column, uint8_t row, uint8_t state, const std::string& start = "", ftxui::Ref<ftxui::InputOption> option = {}) {
-	return Make<KeyInput>(content, column, row, state, start, false, option);
+  inline ftxui::Component MakeKeyInput(ftxui::StringRef content, uint8_t column, uint8_t row, uint8_t state, uint8_t* config_ptr, const std::string& start = "", ftxui::Ref<ftxui::InputOption> option = {}) {
+	return Make<KeyInput>(content, column, row, state, config_ptr, start, false, option);
   }
 
   inline ftxui::Component MakeDisabledKeyInput() {

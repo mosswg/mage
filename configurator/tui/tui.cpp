@@ -2,10 +2,7 @@
 
 using namespace ftxui;
 
-int mage::GLOBAL_SERIAL_USB = 0;
-
-void run_tui(int SERIAL_USB, uint8_t* config_keycodes) {
-	mage::GLOBAL_SERIAL_USB = SERIAL_USB;
+void run_tui(uint8_t* config_keycodes) {
 	std::string config[(mage_const::NUMBER_OF_KEYS_IN_PLANK * 3) + 8];
 
 	std::vector<std::vector<Component>> grid;
@@ -16,7 +13,7 @@ void run_tui(int SERIAL_USB, uint8_t* config_keycodes) {
 			for (int k = 0; k < mage_const::NUMBER_OF_KEYS_IN_ROW; k++) {
 				uint8_t index = (mage_const::NUMBER_OF_KEYS_IN_PLANK * i) + (j * mage_const::NUMBER_OF_KEYS_IN_ROW) + k;
 				config[index] = mage::keycode_names[config_keycodes[index]];
-				grid.back().push_back(mage::MakeKeyInput(config[index], k, j, i));
+				grid.back().push_back(mage::MakeKeyInput(config[index], k, j, i, config_keycodes));
 			}
 			grid.emplace_back();
 		}
@@ -32,7 +29,7 @@ void run_tui(int SERIAL_USB, uint8_t* config_keycodes) {
 	for (int k = 0; k < mage_const::NUMBER_OF_KEYS_IN_CONTROL_GROUP * 2; k++) {
 		uint8_t index = (mage_const::NUMBER_OF_KEYS_IN_PLANK * 3) + k;
 		config[index] = mage::keycode_names[config_keycodes[index]];
-		grid.back().push_back(mage::MakeKeyInput(config[index], k / 4, k % 4, 3));
+		grid.back().push_back(mage::MakeKeyInput(config[index], k / 4, k % 4, 3, config_keycodes));
 	}
 	for (int k = 0; k < 3; k++) {
 		grid.back().push_back(mage::MakeDisabledKeyInput());

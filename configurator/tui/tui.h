@@ -17,4 +17,4 @@
 #include "../serial.h"
 
 
-void run_tui(int SERIAL_USB, uint8_t* config_keycodes);
+void run_tui(uint8_t* config_keycodes);
