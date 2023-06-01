@@ -231,16 +231,16 @@ public:
 		bool EventHandler(Event event) override {
 				const int old_selected_x = selectorx;
 				const int old_selected_y = selectory;
-				if (event == Event::ArrowUp || event.character() == "k") {
+				if (event == Event::ArrowUp || event == Event::Character('k')) {
 						MoveSelectorY(-1);
 				}
 				if (event == Event::ArrowDown || event == Event::Character('j')) {
 						MoveSelectorY(+1);
 				}
-				if (event == Event::ArrowLeft || event == Event::Character('h')) {
+				if (event == Event::ArrowLeft || event == Event::Character('h') || event == Event::Character('b')) {
 						MoveSelectorX(-1);
 				}
-				if (event == Event::ArrowRight || event == Event::Character('l')) {
+				if (event == Event::ArrowRight || event == Event::Character('l') || event == Event::Character('w')) {
 						MoveSelectorX(+1);
 				}
 

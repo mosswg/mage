@@ -456,6 +456,35 @@ namespace mage {
 		{"GUIR", HID_KEY_GUI_RIGHT},
 		{"RAISE", MAGE_KEY_RAISE},
 		{"LOWER", MAGE_KEY_LOWER},
+		{"CONFIG0", mage_const::CONFIG0},
+		{"CFG0", mage_const::CONFIG0},
+
+		{"CONFIG1", mage_const::CONFIG1},
+		{"CFG1", mage_const::CONFIG1},
+
+		{"CONFIG2", mage_const::CONFIG2},
+		{"CFG2", mage_const::CONFIG2},
+
+		{"CONFIG3", mage_const::CONFIG3},
+		{"CFG3", mage_const::CONFIG3},
+
+		{"CONFIG4", mage_const::CONFIG4},
+		{"CFG4", mage_const::CONFIG4},
+
+		{"CONFIG5", mage_const::CONFIG5},
+		{"CFG5", mage_const::CONFIG5},
+
+		{"CONFIG6", mage_const::CONFIG6},
+		{"CFG6", mage_const::CONFIG6},
+
+		{"CONFIG7", mage_const::CONFIG7},
+		{"CFG7", mage_const::CONFIG7},
+
+		{"CONFIG8", mage_const::CONFIG8},
+		{"CFG8", mage_const::CONFIG8},
+
+		{"CONFIG9", mage_const::CONFIG9},
+		{"CFG9", mage_const::CONFIG9},
 	};
 
 	const std::string keycode_names[] = {"NONE",
@@ -625,7 +654,17 @@ namespace mage {
 																			 "EXSEL", // 0xA4
 																			 "RAISE", // 0xa5
 																			 "LOWER", // 0xa6
-																			 "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", // 0xa7 - 0xb7
+																			 "CFG0",  // 0xa7
+																			 "CFG1",
+																			 "CFG2",
+																			 "CFG3",
+																			 "CFG4",
+																			 "CFG5",
+																			 "CFG6",
+																			 "CFG7",
+																			 "CFG8",
+																			 "CFG9", // 0xb0
+																			 "", "", "", "", "", "", // 0xa7 - 0xb7
 																			 "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", // 0xb7 - 0xc7
 																			 "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", // 0xc7 - 0xd7
 																			 "", "", "", "", "", "", "", "", "", // 0xd7 - 0xdf

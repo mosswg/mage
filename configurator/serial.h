@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fstream>
+#include <iostream>
 
 namespace mage {
 
@@ -33,7 +34,8 @@ namespace mage {
 
 	const uint8_t config_low[CONFIG_PLANK_SIZE] = {
 		'C', 'F', 'G', mage_const::STATE_LOW,
-		HID_KEY_ARROW_UP,    HID_KEY_GRAVE,        HID_KEY_NONE,      HID_KEY_NONE,  HID_KEY_NONE,  HID_KEY_NONE,  HID_KEY_NONE,   HID_KEY_NONE,      HID_KEY_NONE,       HID_KEY_NONE,     HID_KEY_NONE,       HID_KEY_NONE,        HID_KEY_NONE,          HID_KEY_GRAVE,
+		/// TODO: Fix this spacing im too lazy rn
+		HID_KEY_ARROW_UP,    HID_KEY_GRAVE,        mage_const::CONFIG0,mage_const::CONFIG1,  mage_const::CONFIG2,  mage_const::CONFIG3,  mage_const::CONFIG4,   mage_const::CONFIG5,      mage_const::CONFIG6,       mage_const::CONFIG7,     mage_const::CONFIG8,       mage_const::CONFIG9,        HID_KEY_NONE,          HID_KEY_GRAVE,
 		HID_KEY_ARROW_LEFT,  HID_KEY_SPACE,        HID_KEY_F1,        HID_KEY_F2,    HID_KEY_F3,    HID_KEY_F4,    HID_KEY_F5,     HID_KEY_F6,        HID_KEY_F7,         HID_KEY_F8,       HID_KEY_F9,         HID_KEY_F10,         HID_KEY_F11,           HID_KEY_F12,
 		HID_KEY_ARROW_RIGHT, HID_KEY_CONTROL_LEFT, HID_KEY_ESCAPE,    HID_KEY_NONE,  HID_KEY_NONE,  HID_KEY_NONE,  HID_KEY_NONE,   HID_KEY_BACKSPACE, HID_KEY_ARROW_LEFT, HID_KEY_ARROW_UP, HID_KEY_ARROW_DOWN, HID_KEY_ARROW_RIGHT, HID_KEY_NONE,          HID_KEY_TAB,
 		HID_KEY_ARROW_DOWN,  HID_KEY_SHIFT_LEFT,   HID_KEY_NONE,      HID_KEY_NONE,  HID_KEY_NONE,  HID_KEY_NONE,  HID_KEY_NONE,   HID_KEY_NONE,      HID_KEY_NONE,       HID_KEY_NONE,     HID_KEY_NONE,       HID_KEY_NONE,        HID_KEY_NONE,          HID_KEY_NONE,
@@ -57,12 +59,38 @@ namespace mage {
 
 	const uint8_t restore_seq[4] = {'R', 'S', 'T', 'R'};
 
+
+	inline uint8_t fetch_config_index(int SERIAL_USB) {
+		uint8_t data[4] = {'F', 'I', 'D', 'X'};
+		write( SERIAL_USB, data, 4);
+
+		uint8_t out;
+		read(SERIAL_USB, &out, 1);
+
+		return out;
+	}
+
+	inline void change_config_index(int SERIAL_USB, uint8_t config_index) {
+		uint8_t data[4] = {'I', 'D', 'X', config_index};
+		write( SERIAL_USB, data, 4);
+	}
+
 	inline void save_config(int SERIAL_USB) {
 		write( SERIAL_USB, save_seq, 4);
 	}
 
+	inline void save_config(int SERIAL_USB, uint8_t config_index) {
+		uint8_t data[4] = {'S', 'A', 'V', config_index};
+		write( SERIAL_USB, data, 4);
+	}
+
 	inline void restore_config(int SERIAL_USB) {
 		write( SERIAL_USB, restore_seq, 4);
+	}
+
+	inline void restore_config(int SERIAL_USB, uint8_t config_index) {
+		uint8_t data[4] = {'R', 'S', 'T', config_index};
+		write( SERIAL_USB, data, 4);
 	}
 
 	inline void write_default_config(int SERIAL_USB) {
@@ -75,7 +103,7 @@ namespace mage {
 	}
 
 
-	inline void write_config(int SERIAL_USB, uint8_t* config) {
+	inline void write_config(int SERIAL_USB, uint8_t* config, uint8_t config_index = 0) {
 		uint8_t config_high[CONFIG_PLANK_SIZE] = {'C', 'F', 'G', mage_const::STATE_HIGH};
 		uint8_t config_normal[CONFIG_PLANK_SIZE] = {'C', 'F', 'G', mage_const::STATE_NORMAL};
 		uint8_t config_low[CONFIG_PLANK_SIZE] = {'C', 'F', 'G', mage_const::STATE_LOW};
@@ -104,7 +132,7 @@ namespace mage {
 		write(SERIAL_USB, data, 8);
 	}
 
-	inline void fetch_config(int SERIAL_USB, uint8_t* out) {
+	inline void fetch_config(int SERIAL_USB, uint8_t* out, uint8_t config_index = 0) {
 		write(SERIAL_USB, fetch_high_seq, 4);
 		read(SERIAL_USB, out, mage_const::NUMBER_OF_KEYS_IN_PLANK);
 
@@ -116,7 +144,6 @@ namespace mage {
 
 		write(SERIAL_USB, fetch_control_seq, 4);
 		read(SERIAL_USB, out + (mage_const::NUMBER_OF_KEYS_IN_PLANK * 3), mage_const::NUMBER_OF_KEYS_IN_CONTROL_GROUP * 2);
-
 	}
 
 	inline void print_config(uint8_t* config) {

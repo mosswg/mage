@@ -72,10 +72,22 @@ int main(int argc, char** argv) {
 		mage::write_default_config(SERIAL_USB);
 	}
 	else if (stris(argv[1], "save")) {
-		mage::save_config(SERIAL_USB);
+		if (argc > 2) {
+			uint8_t config_index = std::stoi(argv[2]);
+			mage::save_config(SERIAL_USB, config_index);
+		}
+		else {
+			mage::save_config(SERIAL_USB);
+		}
 	}
 	else if (stris(argv[1], "restore")) {
-		mage::restore_config(SERIAL_USB);
+		if (argc > 2) {
+			uint8_t config_index = std::stoi(argv[2]);
+			mage::restore_config(SERIAL_USB, config_index);
+		}
+		else {
+			mage::restore_config(SERIAL_USB);
+		}
 	}
 	else if (stris(argv[1], "fetch")) {
 		uint8_t config[mage_const::CONFIG_SIZE];
@@ -116,6 +128,16 @@ int main(int argc, char** argv) {
 		mage::load_config_from_file(filename, config);
 		run_tui(config);
 		mage::save_config_to_file(filename, config);
+	}
+	else if (stris(argv[1], "index")) {
+		if (argc < 3) {
+			std::cout << "Too few argument for index\n";
+		}
+		uint8_t index = std::stoi(argv[2]);
+		mage::change_config_index(SERIAL_USB, index);
+	}
+	else if (stris(argv[1], "findex")) {
+		std::cout << (int)mage::fetch_config_index(SERIAL_USB) << "\n";
 	}
 
 
