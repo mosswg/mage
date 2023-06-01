@@ -21,4 +21,14 @@ namespace mage_const {
 
 	const uint8_t KEY_RAISE = 0xa5;
 	const uint8_t KEY_LOWER = 0xa6;
+	const uint8_t CONFIG0 = 0xa7;
+	const uint8_t CONFIG1 = 0xa8;
+	const uint8_t CONFIG2 = 0xa9;
+	const uint8_t CONFIG3 = 0xaa;
+	const uint8_t CONFIG4 = 0xab;
+	const uint8_t CONFIG5 = 0xac;
+	const uint8_t CONFIG6 = 0xad;
+	const uint8_t CONFIG7 = 0xae;
+	const uint8_t CONFIG8 = 0xaf;
+	const uint8_t CONFIG9 = 0xb0;
 };

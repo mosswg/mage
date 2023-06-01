@@ -142,18 +142,45 @@ void cdc_task(void) {
 					tud_cdc_write_str("CHANGING CONFIG\r\n");
 					mage_config::change_from_serial(buf + 4);
 				}
-				else if (buffer_starts_with(buf, "SAVE")) {
-					tud_cdc_write_str("SAVING CONFIG\r\n");
-					mage_config::save_config();
+				else if (buffer_starts_with(buf, "SAV")) {
+					if (buffer_starts_with(buf, "SAVE")) {
+						tud_cdc_write_str("SAVING CONFIG\r\n");
+						mage_config::save_config();
+					}
+					else {
+						tud_cdc_write_str(("SAVING CONFIG " + std::to_string(buf[3]) + " \r\n").c_str());
+						mage_config::save_config(buf[3]);
+					}
 				}
 				else if (buffer_starts_with(buf, "FCH")) {
 					if (count != 4) {
 						tud_cdc_write_str("ERROR: FETCH MUST SPECIFY STATE\r\n");
+						return;
 					}
 					mage_config::fetch_config(buf[3]);
 				}
-				else if (buffer_starts_with(buf, "RSTR")) {
-					mage_config::read_config_from_flash();
+				else if (buffer_starts_with(buf, "RST")) {
+					if (buffer_starts_with(buf, "RSTR")) {
+						mage_config::read_config_from_flash();
+					}
+					else {
+						mage_config::read_config_from_flash(buf[3]);
+					}
+				}
+				else if (buffer_starts_with(buf, "FIDX")) {
+					mage_config::fetch_config_index();
+				}
+				else if (buffer_starts_with(buf, "IDX")) {
+					if (count != 4) {
+						tud_cdc_write_str("ERROR: SET INDEX MUST SPECITY INDEX\r\n");
+						return;
+					}
+					mage_config::set_config_index(buf[3]);
+				}
+				else {
+					tud_cdc_write_str("ERROR: Unknown control sequence ");
+					tud_cdc_write_str((char*)buf);
+					tud_cdc_write_str("\r\n");
 				}
 			}
 			tud_cdc_write_flush();

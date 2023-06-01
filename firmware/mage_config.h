@@ -7,10 +7,15 @@
 
 namespace mage_config {
 
-#define CONFIG_FLASH_OFFSET PICO_FLASH_SIZE_BYTES - (8 * FLASH_SECTOR_SIZE)
+	// This must be less than 16 for logic in the write funcions
+const uint8_t number_of_configs = 16;
+	// SECTOR SIZE = 4096
+	// PAGE SIZE = 256
+#define CONFIG_FLASH_OFFSET PICO_FLASH_SIZE_BYTES - (number_of_configs * FLASH_SECTOR_SIZE)
 
 	inline const uint8_t *config_flash = (const uint8_t *) (XIP_BASE + CONFIG_FLASH_OFFSET);
 	inline uint8_t config_memory[FLASH_PAGE_SIZE];
+	inline uint8_t temp_config_memory[FLASH_PAGE_SIZE * number_of_configs];
 
 
 	/**
@@ -61,6 +66,32 @@ namespace mage_config {
 	inline const uint16_t* io_expander_column_row_mappings = magev1_io_expander_column_row_mappings;
 #endif
 
+	// We should only need one of these so i think having this as global is ok. idk
+	inline uint8_t current_config_index = 0;
+
+
+	inline void fetch_config_index() {
+		tud_cdc_write(&current_config_index, 1);
+	}
+
+	/**
+		Retreave config from flash storage
+	 */
+	inline void read_config_from_flash(uint8_t config_index = current_config_index) {
+		for (int i = 0; i < mage_const::CONFIG_SIZE; i++) {
+			config_memory[i] = config_flash[(config_index * FLASH_PAGE_SIZE) + i];
+		}
+	}
+
+	inline void set_config_index(uint8_t config_index) {
+		if (config_index < 0 || config_index > number_of_configs) {
+			tud_cdc_write_str(("ERROR: Index " + std::to_string(config_index) + " out of bounds\r\n").c_str());
+			return;
+		}
+		current_config_index = config_index;
+		read_config_from_flash(config_index);
+	}
+
 	inline uint16_t get_column_and_row_from_io_expander(uint8_t expander, bool bank_b, uint8_t index) {
 		return io_expander_column_row_mappings[(mage_const::NUMBER_OF_KEYS_IN_IO_EXPANDER * expander) + (bank_b * 8) + index];
 	}
@@ -80,22 +111,30 @@ namespace mage_config {
 		@param config - the config to be written into the flash
 		@return - true if success, false if failure.
 	*/
-	inline void write_config_to_flash(uint8_t* config) {
-		uint32_t ints = save_and_disable_interrupts();
-		flash_range_erase(CONFIG_FLASH_OFFSET, FLASH_SECTOR_SIZE);
-		restore_interrupts (ints);
+	inline void write_config_to_flash(uint8_t* config, uint8_t config_index) {
+		uint32_t address = CONFIG_FLASH_OFFSET;
 
-		flash_range_program(CONFIG_FLASH_OFFSET, config, FLASH_PAGE_SIZE);
-
-	}
-
-	/**
-		Retreave config from flash storage
-	 */
-	inline void read_config_from_flash() {
-		for (int i = 0; i < mage_const::CONFIG_SIZE; i++) {
-			config_memory[i] = config_flash[i];
+		// Since we have to erase an entire page at one time, we need to:
+		// 	1. save the current data
+		uint8_t* current_data_ptr = (uint8_t*)(XIP_BASE + address);
+		uint8_t current_data_copy[FLASH_SECTOR_SIZE];
+		for (int i = 0; i < FLASH_SECTOR_SIZE / 4; i++) {
+			((uint32_t*)current_data_copy)[i] = ((uint32_t*)current_data_ptr)[i];
 		}
+
+		// 	2. erase the flash
+		uint32_t ints = save_and_disable_interrupts();
+		flash_range_erase(address, FLASH_SECTOR_SIZE);
+		restore_interrupts(ints);
+
+		// 	3. modify the saved data
+		for (int i = 0; i < FLASH_PAGE_SIZE; i++) {
+			current_data_copy[(config_index * FLASH_PAGE_SIZE) + i] = config[i];
+		}
+
+		// 	4. reinsert the entire page
+		flash_range_program(address, current_data_copy, FLASH_SECTOR_SIZE);
+
 	}
 
 	inline void set_config_memory(uint8_t state, uint8_t column, uint8_t row, uint8_t key) {
@@ -125,7 +164,12 @@ namespace mage_config {
 	}
 
 	inline void save_config() {
-		write_config_to_flash(config_memory);
+		write_config_to_flash(config_memory, current_config_index);
+	}
+
+
+	inline void save_config(uint8_t config_index) {
+		write_config_to_flash(config_memory, config_index);
 	}
 
 	inline void change_from_serial(uint8_t* serial_data) {
@@ -145,8 +189,9 @@ namespace mage_config {
 			return;
 		}
 
-		sleep_ms(5);
 		// Sleep to allow the receiver time to start reading
+		sleep_ms(5);
+
 		if (state == mage_const::STATE_CONTROL) {
 			tud_cdc_write(config_memory + (mage_const::NUMBER_OF_KEYS_IN_PLANK * state), mage_const::NUMBER_OF_KEYS_IN_CONTROL_GROUP * 2);
 		}

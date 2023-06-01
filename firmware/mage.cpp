@@ -149,7 +149,7 @@ uint8_t mage::get_control_group_key(uint8_t group, uint8_t index) {
 void mage::append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_size, uint8_t& mods) {
 	int buffer_index = 0;
 
-	// Check for state keys pressed
+	// Check for state or config change keys pressed
 	for (int i = 0; i < KEY_POSITIONS_BUFFER_SIZE; i++) {
 		if (key_positions_buffer[i] == -1) {
 			break;
@@ -184,9 +184,32 @@ void mage::append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_s
 				this->state = STATE_LOW;
 			}
 		}
+		else if (key >= mage_const::CONFIG0 && key <= mage_const::CONFIG9) {
+			mage_config::set_config_index(key - mage_const::CONFIG0);
+		}
 	}
 
-	// Get the rest of the keys with the modified state
+
+	// Skip checking normal since we already did that while checking raise and lower
+	if (this->state != STATE_NORMAL) {
+		// Check for config keys in the new state
+		for (int i = 0; i < KEY_POSITIONS_BUFFER_SIZE; i++) {
+			uint16_t key_position = key_positions_buffer[i];
+			int8_t column = (int8_t)(key_position >> 8);
+			uint8_t row = (uint8_t)(key_position & 0xff);
+			if (column < 0) {
+				continue;
+			}
+
+			uint8_t key = this->get_plank_key(column, row, this->state);
+
+			if (key >= mage_const::CONFIG0 && key <= mage_const::CONFIG9) {
+				mage_config::set_config_index(key - mage_const::CONFIG0);
+			}
+		}
+	}
+
+	// Get the rest of the keys with the modified state and config
 	for (int i = 0; i < KEY_POSITIONS_BUFFER_SIZE; i++) {
 		if (key_positions_buffer[i] == -1) {
 			break;
@@ -200,7 +223,11 @@ void mage::append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_s
 			buffer_index += append_control_group_key(buffer, buffer_index, mods, ~column, row);
 		}
 		else {
-			buffer_index += append_plank_key(buffer, buffer_index, mods, column, row);
+			uint8_t key = append_plank_key(buffer, buffer_index, mods, column, row);
+			tud_cdc_write_str("Adding key ");
+			tud_cdc_write_str(std::to_string((int)key).c_str());
+			tud_cdc_write_str("\r\n");
+			buffer_index += key;
 		}
 	}
 }
