@@ -458,33 +458,36 @@ namespace mage {
 		{"LOWER", MAGE_KEY_LOWER},
 		{"CONFIG0", mage_const::CONFIG0},
 		{"CFG0", mage_const::CONFIG0},
-
 		{"CONFIG1", mage_const::CONFIG1},
 		{"CFG1", mage_const::CONFIG1},
-
 		{"CONFIG2", mage_const::CONFIG2},
 		{"CFG2", mage_const::CONFIG2},
-
 		{"CONFIG3", mage_const::CONFIG3},
 		{"CFG3", mage_const::CONFIG3},
-
 		{"CONFIG4", mage_const::CONFIG4},
 		{"CFG4", mage_const::CONFIG4},
-
 		{"CONFIG5", mage_const::CONFIG5},
 		{"CFG5", mage_const::CONFIG5},
-
 		{"CONFIG6", mage_const::CONFIG6},
 		{"CFG6", mage_const::CONFIG6},
-
 		{"CONFIG7", mage_const::CONFIG7},
 		{"CFG7", mage_const::CONFIG7},
-
 		{"CONFIG8", mage_const::CONFIG8},
 		{"CFG8", mage_const::CONFIG8},
-
 		{"CONFIG9", mage_const::CONFIG9},
 		{"CFG9", mage_const::CONFIG9},
+		{"CONFIGA", mage_const::CONFIGA},
+		{"CFGA", mage_const::CONFIGA},
+		{"CONFIGB", mage_const::CONFIGB},
+		{"CFGB", mage_const::CONFIGB},
+		{"CONFIGC", mage_const::CONFIGC},
+		{"CFGC", mage_const::CONFIGC},
+		{"CONFIGD", mage_const::CONFIGD},
+		{"CFGD", mage_const::CONFIGD},
+		{"CONFIGE", mage_const::CONFIGE},
+		{"CFGE", mage_const::CONFIGE},
+		{"CONFIGF", mage_const::CONFIGF},
+		{"CFGF", mage_const::CONFIGF},
 	};
 
 	const std::string keycode_names[] = {"NONE",
@@ -664,7 +667,12 @@ namespace mage {
 																			 "CFG7",
 																			 "CFG8",
 																			 "CFG9", // 0xb0
-																			 "", "", "", "", "", "", // 0xa7 - 0xb7
+																			 "CFGA",
+																			 "CFGB",
+																			 "CFGC",
+																			 "CFGD",
+																			 "CFGE",
+																			 "CFGF", // 0xb0
 																			 "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", // 0xb7 - 0xc7
 																			 "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", // 0xc7 - 0xd7
 																			 "", "", "", "", "", "", "", "", "", // 0xd7 - 0xdf

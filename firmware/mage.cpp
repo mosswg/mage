@@ -184,7 +184,7 @@ void mage::append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_s
 				this->state = STATE_LOW;
 			}
 		}
-		else if (key >= mage_const::CONFIG0 && key <= mage_const::CONFIG9) {
+		else if (key >= mage_const::CONFIG0 && key <= mage_const::CONFIGF) {
 			mage_config::set_config_index(key - mage_const::CONFIG0);
 		}
 	}
@@ -203,7 +203,7 @@ void mage::append_keys_from_postions_to_buffer(uint8_t* buffer, uint8_t buffer_s
 
 			uint8_t key = this->get_plank_key(column, row, this->state);
 
-			if (key >= mage_const::CONFIG0 && key <= mage_const::CONFIG9) {
+			if (key >= mage_const::CONFIG0 && key <= mage_const::CONFIGF) {
 				mage_config::set_config_index(key - mage_const::CONFIG0);
 			}
 		}

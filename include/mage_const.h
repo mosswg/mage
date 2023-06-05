@@ -31,4 +31,10 @@ namespace mage_const {
 	const uint8_t CONFIG7 = 0xae;
 	const uint8_t CONFIG8 = 0xaf;
 	const uint8_t CONFIG9 = 0xb0;
+	const uint8_t CONFIGA = 0xba;
+	const uint8_t CONFIGB = 0xbb;
+	const uint8_t CONFIGC = 0xbc;
+	const uint8_t CONFIGD = 0xbd;
+	const uint8_t CONFIGE = 0xbe;
+	const uint8_t CONFIGF = 0xbf;
 };
