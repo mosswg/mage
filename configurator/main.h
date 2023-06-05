@@ -55,21 +55,34 @@ inline void init_tty(int SERIAL_USB, struct termios& tty) {
 
 inline void print_usage() {
 	auto& out = std::cout;
-	out << "Usage: configurator [command] <arguments>\n";
+	out << "Usage: configurator command <arguments>\n";
 	out << "\tCommands:\n";
-	out << "\t\tchange:\n";
-	out << "\t\t\tChange a key in the configuration\n";
-	out << "\t\t\tArguments: State Column Row Key\n\n";
 	out << "\t\tdefault:\n";
 	out << "\t\t\tUpload the default configuration\n";
 	out << "\t\t\tArguments: NONE\n\n";
 	out << "\t\tsave:\n";
 	out << "\t\t\tSave the current configuration to flash\n";
 	out << "\t\t\tArguments: NONE\n\n";
+	out << "\t\tchange:\n";
+	out << "\t\t\tChange a key in the configuration\n";
+	out << "\t\t\tArguments: State Column Row Key\n\n";
 	out << "\t\trestore:\n";
 	out << "\t\t\tRestore the configuration from flash\n";
 	out << "\t\t\tArguments: NONE\n\n";
 	out << "\t\tfetch:\n";
 	out << "\t\t\tGet the current configuration from the keyboard\n";
 	out << "\t\t\tArguments: NONE\n\n";
+	out << "\t\tindex:";
+	out << "\t\t\tGet or set the current config index from the keyboard.\n";
+	out << "\t\t\tIf an index argument is provided set otherwise get and print.\n";
+	out << "\t\t\tArguments: <index>\n\n";
+	out << "\t\tupload:";
+	out << "\t\t\tWrite the config from the provided file to the mage\n";
+	out << "\t\t\tArguments: filename\n\n";
+	out << "\t\tdownload:";
+	out << "\t\t\tFetch the config from the mage and write to the provided file\n";
+	out << "\t\t\tArguments: filename\n\n";
+	out << "\t\tedit:";
+	out << "\t\t\tEdit the config in the provided file with the tui\n";
+	out << "\t\t\tArguments: filename\n\n";
 }

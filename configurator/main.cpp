@@ -3,6 +3,11 @@
 
 
 int main(int argc, char** argv) {
+	/// Allow for help to be printed without the mage
+	if (argc > 1 && stris(argv[1], "help")) {
+		print_usage();
+		return 0;
+	}
 
 	// Allow edit without keyboard plugged in
 	if (argc > 1 && stris(argv[1], "edit")) {
@@ -120,7 +125,7 @@ int main(int argc, char** argv) {
 	else if (stris(argv[1], "index")) {
 		if (argc < 3) {
 			std::cout << (int)mage::fetch_config_index(SERIAL_USB) << "\n";
-			return;
+			return 0;
 		}
 		uint8_t index = std::stoi(argv[2]);
 		mage::change_config_index(SERIAL_USB, index);

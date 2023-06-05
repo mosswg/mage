@@ -91,11 +91,17 @@ configurator
 ```
 Opens the working config in the TUI. Each key is interactable and pressing the enter key allow them to take the name of a keycode as input. If the key name is invalid the input will be reverted to the old value and the box will turn red.
 
-### Configuration Revertion
+### Configuration Restoration
 ```
-configurator revert <index>
+configurator restore <index>
 ```
 Pulls from the provided index's config from flash into the working config. The working config will not be saved by this command and the config index is not changed.
+
+### Fetch the config
+```
+configurator fetch
+```
+Fetchs the working config from the mage and prints it out.
 
 ### Configuration index
 ```
@@ -119,13 +125,11 @@ configurator edit [filename]
 ```
 Opens the provided file in the TUI and saves to the original file on exit.
 
-### C
-
 
 
 ## Troubleshooting
 ### None of the keys are working
-Ensure the microcontroller's 5V, Ground, SDA and SCK pins are fully connected and not shorted. There is a normal connection with resistance between the 5V and ground pins but they should not be shorted. Also make sure the microcontroller is working. These 4 pins are the only needed pin for the mage to work and if any of them are disconnected the entire keyboard will not work.
+Ensure the microcontroller's 5V, Ground, SDA and SCK pins are fully connected and not shorted. There is a normal connection with resistance between the 5V and ground pins but they should not be shorted. Also make sure the microcontroller is working. These 4 pins are the only needed pins on the microcontroller for the mage to work and if any of them are disconnected the entire keyboard will not work.
 ### A region of keys (16 keys) are not working
 This usually means that one of the I/O expanders is not working. Make sure that the 5V, Ground, SDA, and SCK pin are fully connected to the pads on the board.
 ### A one key/a few keys are not working
