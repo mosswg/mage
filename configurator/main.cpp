@@ -117,27 +117,13 @@ int main(int argc, char** argv) {
 		mage::fetch_config(SERIAL_USB, config);
 		mage::save_config_to_file(filename, config);
 	}
-	else if (stris(argv[1], "edit")) {
-		if (argc < 3) {
-			std::cout << "Too few arguments for edit\n";
-			print_usage();
-		}
-
-		char* filename = argv[2];
-		uint8_t config[mage_const::CONFIG_SIZE];
-		mage::load_config_from_file(filename, config);
-		run_tui(config);
-		mage::save_config_to_file(filename, config);
-	}
 	else if (stris(argv[1], "index")) {
 		if (argc < 3) {
-			std::cout << "Too few argument for index\n";
+			std::cout << (int)mage::fetch_config_index(SERIAL_USB) << "\n";
+			return;
 		}
 		uint8_t index = std::stoi(argv[2]);
 		mage::change_config_index(SERIAL_USB, index);
-	}
-	else if (stris(argv[1], "findex")) {
-		std::cout << (int)mage::fetch_config_index(SERIAL_USB) << "\n";
 	}
 
 
