@@ -36,9 +36,20 @@
 9. Plug everything in and test it
 10. [Troubleshoot](#troubleshooting) if needed
 
+
+## Firmware
+#### TODO: Find a better name for the mage firmware
+Choose to either use [QMK](#QMK) (more resources and better for beginners) or [mage firmware](#mage-firmware) (more hackable and on the go configuration).
+
+### QMK
+Follow the [QMK Getting Started Guide](https://docs.qmk.fm/#/newbs_getting_started) and setup your enviroment. Then, copy `magev2` from this project's `qmk` directory into your `qmk/keyboards/` folder. [Flash the firmware](https://docs.qmk.fm/#/newbs_flashing). The rest of this guide is for the mage firmware. To configure with QMK continue reading their docs.
+
+### Mage Firmware
+Initialize the cmake project with `cmake -B build`. Then, build the firmware with `cmake --build build`. Put the microcontroller into bootloader mode by holding the boot button (Labeled 'B' on the xiao) then pressing the reset button (Labeled 'R' on the xiao). Use the `install.sh` script or mount the drive and copy `build/mage_firmware.uf2` to the drive. The configuration must then be written. I recommend using the [default](#default-configuration) at first then changing whatever you see fit.
+
 ## Configuration
 All configuration is done with the configurator tool. There is a cli and tui interface.
-### Configuration Build
+### Building the configurator
 Navigate into the configurator folder and run:
 ```
 cmake -B build
@@ -46,61 +57,69 @@ cmake --build build
 ```
 The configurator tool will then be in the build folder as 'mage_configurator'.
 
-### Default Configuration
-The default config can be uploaded to the mage with the command:
+### Command arguments
+Some commands take arguments. For the description of the command required arguments are surrounded by `[]` and optional arguments are surrounded by `<>`. For example:
 ```
-./configurator default
+configurator command [required] <optional>
 ```
-This does not [save](#configuration-save) the configuration to the flash memory so upon loss of power or reset the config will revert to the last saved.
+Additionally, many commands take an `<index>` argument. This tells the command which config to reference. There are 16 configs to choose from and they can be switch with the CONFIG0-CONFIGF keys.
 
-### Configuration Save
-The current config can be saved to flash with the command:
+
+### Default Configuration
 ```
-./configurator save
+configurator default
 ```
-This means that the configuration will be perserved over reset. Without saving the config will have to be rewritten to the mage.
+Uploads the default config (defined in `configurator/serial.h`). Does not [save](#Saving-the-config) the config.
+
+### Saving the config
+```
+configurator save <index>
+```
+Saves the working config to the given index. If no index is provided saves to the current config index.
 
 ### Configuration Modification
-The config can be modified with the command:
 ```
-./configurator change [state] [column] [row] [key]
+configurator change [state] [column] [row] [key]
 ```
-This command set the provided state, column, row as the key. All arguments are case insensitive.
+Sets the provided state, column, row to the key. All arguments are case insensitive.
 State can be "high", "normal", "low", "control" or numbers 0-3 respectively.
-Column and row are 1 index numbers. For example, the first column third row (default right arrow) would be referenced with "1 3".
+Column and row are index numbers. For example, the first column third row (default right arrow) would be referenced with "1 3".
 Key is the name of the key that should be at the provided position. This can be the full name or a shortening. For example, The escape key can be "escape" or "ESC". A full list of names is available in the `configurator/keycode.h` file.
 
-The config can also be modified with the tui. This is accessed with:
 ```
-./configurator
+configurator
 ```
-The tui with the default config looks like this:
-```
-UP             `               F1             F2              F3             F4              F5              F6              F7             F8              F9              F10             [              ESC             
-LEFT           SPACE           1              2               3              4               5               6               7              8               9               0               ]              DEL             
-RIGHT          LCTRL           =              NONE            NONE           NONE            NONE            NONE            NONE           NONE            NONE            NONE            NONE           TAB             
-DOWN           LSHFT           ;              NONE            NONE           NONE            NONE            NONE            NONE           NONE            NONE            NONE            =              RSHFT           
-                                                                                                                                                                                                                           
-UP             ESC             1              2               3              4               5               6               7              8               9               0               ]              ESC             
-LEFT           TAB             Q              W               E              R               T               Y               U              I               O               P               [              DEL             
-RIGHT          LCTRL           A              S               D              F               G               H               J              K               L               ;               '              TAB             
-DOWN           LSHFT           Z              X               C              V               B               N               M              ,               .               /               -              RSHFT           
-                                                                                                                                                                                                                           
-UP             `               NONE           NONE            NONE           NONE            NONE            NONE            NONE           NONE            NONE            NONE            NONE           `               
-LEFT           SPACE           F1             F2              F3             F4              F5              F6              F7             F8              F9              F10             F11            F12             
-RIGHT          LCTRL           ESC            NONE            NONE           NONE            NONE            BKSP            LEFT           UP              DOWN            RIGHT           NONE           TAB             
-DOWN           LSHFT           NONE           NONE            NONE           NONE            NONE            NONE            NONE           NONE            NONE            NONE            NONE           NONE            
-                                                                                                                                                                                                                           
-                                              RAISE           LGUI           LCTRL           SPACE           LOWER           BKSP           RCTRL           ENTER                                                          
-```
-Each key is interactable and the enter key allow them to take keyboard input and the name input will be sent to the mage. If the key name is invalid the old key will come back, the box will turn red and the new key is not sent to the mage.
+Opens the working config in the TUI. Each key is interactable and pressing the enter key allow them to take the name of a keycode as input. If the key name is invalid the input will be reverted to the old value and the box will turn red.
 
 ### Configuration Revertion
-If the modifications to the config should be discarded, instead of resetting the xiao the revert command can be used:
 ```
-./configurator revert
+configurator revert <index>
 ```
-This will get the configuration from flash and write it to the working configuration of the mage. This loses all modifications so be sure you want to discard them all.
+Pulls from the provided index's config from flash into the working config. The working config will not be saved by this command and the config index is not changed.
+
+### Configuration index
+```
+configurator index <set-index>
+```
+If `<set-index>` is provided then pull the config at that index and set the current config index to it. Otherwise, prints the current config index.
+
+### File commands
+```
+configurator download [filename]
+```
+Saves the current working config as a file with the provided file name.
+
+```
+configurator upload [filename]
+```
+Uploads the config in the file with the provided file name to the mage.
+
+```
+configurator edit [filename]
+```
+Opens the provided file in the TUI and saves to the original file on exit.
+
+### C
 
 
 
